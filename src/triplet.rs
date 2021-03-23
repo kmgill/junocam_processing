@@ -1,8 +1,6 @@
 
-use crate::strip::Strip;
-use crate::imagebuffer::ImageBuffer;
-use crate::decompanding;
-use crate::constants;
+use crate::{strip::Strip, imagebuffer::ImageBuffer, decompanding, constants, enums};
+
 
 pub struct Triplet {
     pub buffer : ImageBuffer,
@@ -15,11 +13,12 @@ pub struct Triplet {
 impl Triplet {
     pub fn decompand(&mut self) -> Result<&'static str, &'static str> {
         if self.empty {
-            return Err(constants::STRUCT_IS_EMPTY);
+            return Err(constants::status::STRUCT_IS_EMPTY);
         } 
         
-        decompanding::decompand_buffer(&mut self.buffer).unwrap();
-        
+        // Don't assume SQROOT
+        decompanding::decompand_buffer(&mut self.buffer, enums::SampleBitMode::SQROOT).unwrap();
+
         // Think about throwing an error if one or more strips are empty, too
         if !self.red.is_empty() {
             self.red.decompand().unwrap();
@@ -31,7 +30,7 @@ impl Triplet {
             self.blue.decompand().unwrap();
         }
         
-        Ok(constants::OK)
+        Ok(constants::status::OK)
     }
 
     pub fn apply_weights(&mut self, red_weight:f32, green_weight:f32, blue_weight:f32) -> Result<&'static str, &'static str> {
@@ -46,12 +45,12 @@ impl Triplet {
             self.blue.apply_weight(blue_weight).unwrap();
         }
         
-        Ok(constants::OK)
+        Ok(constants::status::OK)
 
     }
 
     pub fn extract_triplet_from_buffer() -> Result<&'static str, &'static str> {
 
-        Err(constants::NOT_IMPLEMENTED)
+        Err(constants::status::NOT_IMPLEMENTED)
     }
 }

@@ -52,7 +52,7 @@ impl ImageBuffer {
     pub fn from_vec(v:Vec<f32>, width:usize, height:usize) -> Result<ImageBuffer, &'static str> {
 
         if v.len() != (width * height) {
-            return Err(constants::DIMENSIONS_DO_NOT_MATCH_VECTOR_LENGTH);
+            return Err(constants::status::DIMENSIONS_DO_NOT_MATCH_VECTOR_LENGTH);
         }
 
         Ok(ImageBuffer{buffer:v,
@@ -65,7 +65,7 @@ impl ImageBuffer {
     pub fn from_file(file_path:&str) -> Result<ImageBuffer, &'static str> {
 
         if !path::file_exists(file_path) {
-            return Err(constants::FILE_NOT_FOUND);
+            return Err(constants::status::FILE_NOT_FOUND);
         }
 
         let image_data = open(file_path).unwrap().into_luma16();
@@ -98,7 +98,7 @@ impl ImageBuffer {
             let index = y * self.width + x;
             return Ok(self.buffer[index]);
         } else {
-            return Err(constants::INVALID_PIXEL_COORDINATES); // TODO: learn to throw exceptions
+            return Err(constants::status::INVALID_PIXEL_COORDINATES); // TODO: learn to throw exceptions
         }
     }
 
@@ -114,9 +114,9 @@ impl ImageBuffer {
         if x < self.width && y < self.height {
             let index = y * self.width + x;
             self.buffer[index] = val;
-            return Ok(constants::OK);
+            return Ok(constants::status::OK);
         } else {
-            return Err(constants::INVALID_PIXEL_COORDINATES);
+            return Err(constants::status::INVALID_PIXEL_COORDINATES);
         }
     }
 
@@ -143,7 +143,7 @@ impl ImageBuffer {
     pub fn divide(&self, other:&ImageBuffer) -> Result<ImageBuffer, &str> {
 
         if self.width != other.width || self.height != other.height {
-            return Err(constants::ARRAY_SIZE_MISMATCH);
+            return Err(constants::status::ARRAY_SIZE_MISMATCH);
         }
 
         let need_len = self.width * self.height;
@@ -187,7 +187,7 @@ impl ImageBuffer {
     pub fn multiply(&self, other:&ImageBuffer) -> Result<ImageBuffer, &str> {
 
         if self.width != other.width || self.height != other.height {
-            return Err(constants::ARRAY_SIZE_MISMATCH);
+            return Err(constants::status::ARRAY_SIZE_MISMATCH);
         }
 
         let need_len = self.width * self.height;
@@ -205,7 +205,7 @@ impl ImageBuffer {
     pub fn add(&self, other:&ImageBuffer) -> Result<ImageBuffer, &str> {
 
         if self.width != other.width || self.height != other.height {
-            return Err(constants::ARRAY_SIZE_MISMATCH);
+            return Err(constants::status::ARRAY_SIZE_MISMATCH);
         }
 
         let need_len = self.width * self.height;
@@ -223,7 +223,7 @@ impl ImageBuffer {
     pub fn subtract(&self, other:&ImageBuffer) -> Result<ImageBuffer, &str> {
 
         if self.width != other.width || self.height != other.height {
-            return Err(constants::ARRAY_SIZE_MISMATCH);
+            return Err(constants::status::ARRAY_SIZE_MISMATCH);
         }
 
         let need_len = self.width * self.height;
@@ -231,10 +231,7 @@ impl ImageBuffer {
         v.resize(need_len, 0.0);
 
         for i in 0..need_len {
-            let mut difference = self.buffer[i] - other.buffer[i];
-            if difference < 0.0 {
-                difference = 0.0;
-            }
+            let difference = self.buffer[i] - other.buffer[i];
             v[i] = difference;
         }
 
@@ -294,7 +291,7 @@ impl ImageBuffer {
                 let put_y = y / 2;
                 let put_idx = (put_y * dest_width) + put_x;
 
-                let val_f32 :f32 = self.get(x, y).expect(constants::OK) as f32;
+                let val_f32 :f32 = self.get(x, y).expect(constants::status::OK) as f32;
                 
                 v[put_idx] = val_f32;
             }
@@ -375,10 +372,10 @@ impl ImageBuffer {
         if path::parent_exists_and_writable(&to_file) {
             out_img.save(to_file).unwrap();
             vprintln!("    File saved.");
-            return Ok(constants::OK);
+            return Ok(constants::status::OK);
         } else {
             eprintln!("Parent does not exist or cannot be written: {}", path::get_parent(to_file));
-            return Err(constants::PARENT_NOT_EXISTS_OR_UNWRITABLE);
+            return Err(constants::status::PARENT_NOT_EXISTS_OR_UNWRITABLE);
         }
     
     }

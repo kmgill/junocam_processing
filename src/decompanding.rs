@@ -1,6 +1,5 @@
 
-use crate::imagebuffer::ImageBuffer;
-use crate::constants;
+use crate::{imagebuffer::ImageBuffer, constants, enums};
 
 pub const SQROOT : [u32; 256] = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15,
             16, 17, 18, 19, 20, 21, 22, 23, 25, 27, 29, 31, 33, 35, 37, 39,
@@ -87,18 +86,30 @@ pub const LIN16 : [u32; 256]  = [0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 
 
 
 
-pub fn decompand_buffer(buffer:&mut ImageBuffer) -> Result<&'static str, &'static str> {
+fn table_from_enum(bit_mode:enums::SampleBitMode) -> Result<[u32; 256], &'static str> {
+    match bit_mode {
+        enums::SampleBitMode::SQROOT => Ok(SQROOT),
+        enums::SampleBitMode::LIN1 => Ok(LIN1),
+        enums::SampleBitMode::LIN8 => Ok(LIN8),
+        enums::SampleBitMode::LIN16 => Ok(LIN16),
+        _ => Err(constants::status::INVALID_ENUM_VALUE) // wut?
+    }
+}
+
+pub fn decompand_buffer(buffer:&mut ImageBuffer, bit_mode:enums::SampleBitMode) -> Result<&'static str, &'static str> {
+
+    let table = table_from_enum(bit_mode).unwrap();
 
     for x in 0..buffer.width {
         for y in 0..buffer.height {
             let raw_value = buffer.get(x, y).unwrap() as usize;
             if raw_value > 255 {
-                return Err("Invalid raw value");
+                return Err(constants::status::INVALID_RAW_VALUE);
             }
-            let ilt_value = SQROOT[raw_value];
+            let ilt_value = table[raw_value];
             buffer.put(x, y, ilt_value as f32).unwrap();
         }
     }
-    Ok(constants::OK)
+    Ok(constants::status::OK)
 }
 

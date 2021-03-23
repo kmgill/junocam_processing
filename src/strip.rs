@@ -1,7 +1,6 @@
 
-use crate::imagebuffer::ImageBuffer;
-use crate::decompanding;
-use crate::constants;
+use crate::{imagebuffer::ImageBuffer, decompanding, constants, enums};
+
 
 pub struct Strip {
     pub buffer : ImageBuffer,
@@ -12,9 +11,11 @@ pub struct Strip {
 impl Strip {
     pub fn decompand(&mut self) -> Result<&'static str, &'static str> {
         if self.empty {
-            return Err(constants::STRUCT_IS_EMPTY)
+            return Err(constants::status::STRUCT_IS_EMPTY)
         } 
-        decompanding::decompand_buffer(&mut self.buffer)
+
+        // Don't assume SQROOT
+        decompanding::decompand_buffer(&mut self.buffer, enums::SampleBitMode::SQROOT) 
     }
 
     pub fn is_empty(&self) -> bool {
@@ -23,11 +24,11 @@ impl Strip {
 
     pub fn apply_weight(&mut self, weight:f32) -> Result<&'static str, &'static str> {
         if self.empty {
-            return Err(constants::STRUCT_IS_EMPTY)
+            return Err(constants::status::STRUCT_IS_EMPTY)
         } 
 
         self.buffer = self.buffer.scale(weight).unwrap();
 
-        Ok(constants::OK)
+        Ok(constants::status::OK)
     }
 }
