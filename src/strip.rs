@@ -20,4 +20,14 @@ impl Strip {
     pub fn is_empty(&self) -> bool {
         self.empty
     }
+
+    pub fn apply_weight(&mut self, weight:f32) -> Result<&'static str, &'static str> {
+        if self.empty {
+            return Err(constants::STRUCT_IS_EMPTY)
+        } 
+
+        self.buffer = self.buffer.scale(weight).unwrap();
+
+        Ok(constants::OK)
+    }
 }
