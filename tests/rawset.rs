@@ -1,17 +1,16 @@
 use junocam_processing::{path, constants, rawset};
 
-const TEST_RAW_IMAGE_FILE_PATH : &str = "test-data/JNCE_2021052_32C00054_V01/ImageSet/JNCE_2021052_32C00054_V01-raw.png";
-const TEST_JSON_FILE_PATH : &str = "test-data/JNCE_2021052_32C00054_V01/DataSet/10124-Metadata.json";
+mod common;
 
 #[test]
 fn test_load_image_set() {
 
     // Make sure the test files exist
-    assert!(path::file_exists(TEST_RAW_IMAGE_FILE_PATH));
-    assert!(path::file_exists(TEST_JSON_FILE_PATH));
+    assert!(path::file_exists(common::TEST_RAW_IMAGE_FILE_PATH));
+    assert!(path::file_exists(common::TEST_JSON_FILE_PATH));
 
     // Open the test set
-    let mut rs = rawset::RawSet::open(TEST_JSON_FILE_PATH, TEST_RAW_IMAGE_FILE_PATH).unwrap();
+    let mut rs = rawset::RawSet::open(common::TEST_JSON_FILE_PATH, common::TEST_RAW_IMAGE_FILE_PATH).unwrap();
 
     // Triplet count should be zero since we haven't split them out from
     // the raw image
