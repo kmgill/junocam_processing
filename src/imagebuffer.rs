@@ -7,6 +7,7 @@ extern crate image;
 use image::{open, DynamicImage, Rgb};
 
 // A simple image raster buffer.
+#[derive(Debug, Clone)]
 pub struct ImageBuffer {
     buffer: Vec<f32>,
     pub width: usize,
@@ -92,6 +93,14 @@ impl ImageBuffer {
         ImageBuffer::from_vec(v, width, height)
     }
 
+    pub fn get_slice(&self, top_y:usize, len:usize) -> Result<ImageBuffer, &str> {
+        let start_index = top_y * self.width;
+        let stop_index = (top_y + len) * self.width;
+
+        let slice = self.buffer[start_index..stop_index].to_vec();
+
+        ImageBuffer::from_vec(slice, self.width, len)
+    }
 
     pub fn get(&self, x:usize, y:usize) -> Result<f32, &str> {
         if x < self.width && y < self.height {

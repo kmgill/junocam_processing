@@ -5,6 +5,7 @@ use std::fs;
 use chrono::prelude::*;
 
 const TEST_JSON_FILE_PATH : &str = "test-data/JNCE_2021052_32C00054_V01/DataSet/10124-Metadata.json";
+
 const TEST_START_TIME_STRING : &str = "2021-02-21T18:29:46.903";
 
 #[test]

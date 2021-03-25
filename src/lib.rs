@@ -13,3 +13,4 @@ pub mod rawimage;
 pub mod metadata;
 pub mod enums;
 pub mod error;
+pub mod rawset;

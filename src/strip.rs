@@ -1,15 +1,30 @@
 
-use crate::{imagebuffer::ImageBuffer, decompanding, constants, enums};
+use crate::{imagebuffer::ImageBuffer, decompanding, constants, enums, error};
 
 
 pub struct Strip {
     pub buffer : ImageBuffer,
     empty : bool,
+    // Strip should know which band it is along with timing and pointing
 }
 
 
 impl Strip {
-    pub fn decompand(&mut self) -> Result<&'static str, &'static str> {
+    pub fn new_empty() -> error::Result<Strip> {
+        Ok(Strip {
+            buffer :ImageBuffer::new_empty().unwrap(),
+            empty: true
+        })
+    }
+
+    pub fn new_from_imagebuffer(buffer:&ImageBuffer) -> error::Result<Strip> {
+        Ok(Strip{
+            buffer: buffer.clone(),
+            empty: false
+        })
+    }
+
+    pub fn decompand(&mut self) -> error::Result<&'static str> {
         if self.empty {
             return Err(constants::status::STRUCT_IS_EMPTY)
         } 
@@ -22,7 +37,7 @@ impl Strip {
         self.empty
     }
 
-    pub fn apply_weight(&mut self, weight:f32) -> Result<&'static str, &'static str> {
+    pub fn apply_weight(&mut self, weight:f32) -> error::Result<&'static str> {
         if self.empty {
             return Err(constants::status::STRUCT_IS_EMPTY)
         } 
