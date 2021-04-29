@@ -1,5 +1,12 @@
 
-use crate::{strip::Strip, imagebuffer::ImageBuffer, decompanding, constants, enums, error};
+use crate::{
+    strip::Strip, 
+    imagebuffer::ImageBuffer, 
+    decompanding, 
+    constants, 
+    enums, 
+    error
+};
 
 
 pub struct Triplet {
@@ -71,9 +78,9 @@ impl Triplet {
         let green_data = self.buffer.get_slice(constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
         let red_data = self.buffer.get_slice(2 * constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
 
-        self.blue = Strip::new_from_imagebuffer(&blue_data).unwrap();
-        self.green = Strip::new_from_imagebuffer(&green_data).unwrap();
-        self.red = Strip::new_from_imagebuffer(&red_data).unwrap();
+        self.blue = Strip::new_from_imagebuffer(&blue_data, enums::Camera::BLUE).unwrap();
+        self.green = Strip::new_from_imagebuffer(&green_data, enums::Camera::GREEN).unwrap();
+        self.red = Strip::new_from_imagebuffer(&red_data, enums::Camera::RED).unwrap();
 
         Ok(constants::status::OK)
     }

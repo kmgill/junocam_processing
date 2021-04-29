@@ -1,5 +1,12 @@
 
-use crate::{imagebuffer::ImageBuffer, print, path, triplet, error, constants};
+use crate::{
+    imagebuffer::ImageBuffer, 
+    print, 
+    path, 
+    triplet, 
+    error, 
+    constants
+};
 
 
 pub struct RawImage {

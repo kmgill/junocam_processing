@@ -1,5 +1,11 @@
 
-use crate::{path, constants, rawimage, metadata, error};
+use crate::{
+    path, 
+    constants, 
+    rawimage, 
+    metadata, 
+    error
+};
 
 
 pub struct RawSet {

@@ -98,3 +98,18 @@ pub mod filters {
     pub const BLUE: &str = "BLUE";
     pub const METHANE: &str = "METHANE";
 }
+
+pub mod cal {
+    const fn data_dir() -> &'static str {
+        if cfg!(debug_assertions) {
+            return "src/cal";
+        } else {
+            return "/usr/share/junocam_processing/data/";
+        }
+    }
+
+    //pub const M20_INPAINT_MASK_RIGHT_PATH : &str = const_format::formatcp!("{}/{}", data_dir(), "M20_MCZ_RIGHT_INPAINT_MASK_V1.png");
+    pub const JNO_INPAINT_MASK_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_red.png");
+    pub const JNO_INPAINT_MASK_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_green.png");
+    pub const JNO_INPAINT_MASK_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_blue.png");
+}
