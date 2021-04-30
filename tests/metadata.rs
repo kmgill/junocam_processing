@@ -1,6 +1,11 @@
 
 use json;
-use junocam_processing::{path, constants, metadata, enums};
+use junocam_processing::{
+    path, 
+    constants, 
+    metadata, 
+    enums
+};
 use std::fs;
 use chrono::prelude::*;
 
@@ -8,19 +13,19 @@ mod common;
 
 #[test]
 fn test_load_json_basic() {
-    assert!(path::file_exists(common::TEST_JSON_FILE_PATH));
+    assert!(path::file_exists(common::constants::TEST_JSON_FILE_PATH));
 
-    let json_test_data = fs::read_to_string(common::TEST_JSON_FILE_PATH).expect(constants::status::ERROR_PARSING_JSON);
+    let json_test_data = fs::read_to_string(common::constants::TEST_JSON_FILE_PATH).expect(constants::status::ERROR_PARSING_JSON);
     let parsed_json = json::parse(&json_test_data).unwrap();
 
     assert_eq!(parsed_json[constants::metadata::COMPRESSION_TYPE], "INTEGER COSINE TRANSFORM");
     assert_eq!(parsed_json[constants::metadata::FILE_RECORDS], 9984);
     assert_eq!(parsed_json[constants::metadata::SUB_SPACECRAFT_LONGITUDE], "79.5828");
 
-    assert_eq!(parsed_json[constants::metadata::IMAGE_TIME], common::TEST_START_TIME_STRING);
+    assert_eq!(parsed_json[constants::metadata::IMAGE_TIME], common::constants::TEST_START_TIME_STRING);
 
     let start_time = Utc.datetime_from_str(parsed_json[constants::metadata::IMAGE_TIME].as_str().unwrap(), "%Y-%m-%dT%H:%M:%S%.3f").unwrap();
-    let test_time_1 = Utc.datetime_from_str(common::TEST_START_TIME_STRING, "%Y-%m-%dT%H:%M:%S%.3f").unwrap();
+    let test_time_1 = Utc.datetime_from_str(common::constants::TEST_START_TIME_STRING, "%Y-%m-%dT%H:%M:%S%.3f").unwrap();
 
     assert_eq!(start_time, test_time_1);
     
@@ -33,9 +38,9 @@ fn test_load_json_basic() {
 
 #[test]
 fn test_load_metadata() {
-    assert!(path::file_exists(common::TEST_JSON_FILE_PATH));
+    assert!(path::file_exists(common::constants::TEST_JSON_FILE_PATH));
 
-    let md = metadata::Metadata::new_from_file(common::TEST_JSON_FILE_PATH).unwrap();
+    let md = metadata::Metadata::new_from_file(common::constants::TEST_JSON_FILE_PATH).unwrap();
     
     // Tests parsing of FILTER_NAME into a valid Filters struct
     assert_eq!(md.filters.red, true);

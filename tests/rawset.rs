@@ -1,4 +1,8 @@
-use junocam_processing::{path, constants, rawset};
+use junocam_processing::{
+    path, 
+    constants, 
+    rawset
+};
 
 mod common;
 
@@ -6,11 +10,11 @@ mod common;
 fn test_load_image_set() {
 
     // Make sure the test files exist
-    assert!(path::file_exists(common::TEST_RAW_IMAGE_FILE_PATH));
-    assert!(path::file_exists(common::TEST_JSON_FILE_PATH));
+    assert!(path::file_exists(common::constants::TEST_RAW_IMAGE_FILE_PATH));
+    assert!(path::file_exists(common::constants::TEST_JSON_FILE_PATH));
 
     // Open the test set
-    let mut rs = rawset::RawSet::open(common::TEST_JSON_FILE_PATH, common::TEST_RAW_IMAGE_FILE_PATH).unwrap();
+    let mut rs = rawset::RawSet::open(common::constants::TEST_JSON_FILE_PATH, common::constants::TEST_RAW_IMAGE_FILE_PATH).unwrap();
 
     // Triplet count should be zero since we haven't split them out from
     // the raw image
