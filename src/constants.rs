@@ -22,6 +22,8 @@ pub mod status {
     pub const ERROR_PARSING_JSON: &str = "Error parsing JSON";
     pub const INVALID_ENUM_VALUE: &str = "Invalid enum value";
     pub const INVALID_RAW_VALUE: &str = "Invalid raw image value";
+    pub const UNSUPPORTED_INSTRUMENT: &str = "Unsupported instrument";
+    pub const UNSUPPORTED_COLOR_CHANNEL: &str = "Unsupported color channel";
 }
 
 
@@ -112,4 +114,14 @@ pub mod cal {
     pub const JNO_INPAINT_MASK_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_red.png");
     pub const JNO_INPAINT_MASK_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_green.png");
     pub const JNO_INPAINT_MASK_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_blue.png");
+
+    pub const JNO_FLATFIELD_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_2.png");
+    pub const JNO_FLATFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_1.png");
+    pub const JNO_FLATFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_0.png");
+
+    pub const JNO_DARKFIELD_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_red.png");
+    pub const JNO_DARKFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_green.png");
+    pub const JNO_DARKFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_blue.png");
+
+
 }
