@@ -1,5 +1,7 @@
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+
+
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum Camera {
     RED,
     GREEN,
@@ -8,7 +10,7 @@ pub enum Camera {
     NONE
 }
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum SampleBitMode {
     SQROOT,
     LIN1,

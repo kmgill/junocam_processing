@@ -2,17 +2,24 @@ use crate::{
     constants, 
     imagebuffer::ImageBuffer, 
     error, 
-    enums
+    enums,
+    cache
 };
+
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref CACHE:Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
+}
 
 pub fn load_dark(camera:enums::Camera) -> error::Result<ImageBuffer> {
     match camera {
         enums::Camera::RED => 
-                Ok(ImageBuffer::from_file(constants::cal::JNO_DARKFIELD_RED).unwrap()),
+                Ok(CACHE.lock().unwrap().check_red(constants::cal::JNO_DARKFIELD_RED).unwrap()),
         enums::Camera::GREEN => 
-                Ok(ImageBuffer::from_file(constants::cal::JNO_DARKFIELD_GREEN).unwrap()), 
+                Ok(CACHE.lock().unwrap().check_green(constants::cal::JNO_DARKFIELD_GREEN).unwrap()), 
         enums::Camera::BLUE => 
-                Ok(ImageBuffer::from_file(constants::cal::JNO_DARKFIELD_BLUE).unwrap()),
+                Ok(CACHE.lock().unwrap().check_blue(constants::cal::JNO_DARKFIELD_BLUE).unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
     }
 }

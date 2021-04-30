@@ -6,7 +6,8 @@ use crate::{
     enums, 
     error,
     inpaint,
-    ok
+    ok,
+    not_implemented
 };
 
 
@@ -35,6 +36,11 @@ impl Strip {
         })
     }
 
+    pub fn apply_darknoise(&mut self)  -> error::Result<&'static str> {
+
+        not_implemented!()
+    }
+
     pub fn infill(&mut self) -> error::Result<&'static str> {
         if self.empty {
             return Err(constants::status::STRUCT_IS_EMPTY)
@@ -46,7 +52,7 @@ impl Strip {
         };
 
         self.buffer = filled;
-        
+
         ok!()
     }
 

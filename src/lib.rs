@@ -1,4 +1,8 @@
+
 extern crate clap;
+
+#[macro_use]
+extern crate lazy_static;
 
 pub mod print;
 
@@ -17,3 +21,4 @@ pub mod rawset;
 pub mod stats;
 pub mod flatfield;
 pub mod darkfield;
+pub mod cache;

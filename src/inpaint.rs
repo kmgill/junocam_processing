@@ -6,14 +6,21 @@
 
 use crate::{
     constants, 
-    path, 
     error, 
     enums, 
     imagebuffer::ImageBuffer, 
     vprintln,
     stats,
-    ok
+    ok,
+    cache
 };
+
+use std::sync::Mutex;
+
+lazy_static! {
+    static ref CACHE:Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
+}
+
 
 #[derive(Debug, Clone)]
 struct Point {
@@ -47,27 +54,16 @@ pub fn inpaint_supported_for_camera(camera:enums::Camera) -> bool {
     }
 }
 
-fn load_mask_file(filename:&str) -> error::Result<ImageBuffer> {
-    vprintln!("Loading inpaint mask file {}", filename);
-
-    if ! path::file_exists(filename) {
-        return Err(constants::status::FILE_NOT_FOUND);
-    }
-    let mask = match ImageBuffer::from_file(filename) {
-        Ok(m) => m,
-        Err(e) => return Err(e)
-    };
-    
-    Ok(mask)
-}
-
 fn load_mask(camera:enums::Camera) -> error::Result<ImageBuffer> {
-    let mask_file = match determine_mask_file(camera) {
-        Ok(m) => m,
-        Err(e) => return Err(e)
-    };
-
-    load_mask_file(mask_file)
+    match camera {
+        enums::Camera::RED => 
+                Ok(CACHE.lock().unwrap().check_red(constants::cal::JNO_INPAINT_MASK_RED).unwrap()),
+        enums::Camera::GREEN => 
+                Ok(CACHE.lock().unwrap().check_green(constants::cal::JNO_INPAINT_MASK_GREEN).unwrap()), 
+        enums::Camera::BLUE => 
+                Ok(CACHE.lock().unwrap().check_blue(constants::cal::JNO_INPAINT_MASK_BLUE).unwrap()),
+        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
+    }
 }
 
 fn get_num_good_neighbors(mask:&ImageBuffer, x:i32, y:i32) -> u32 {

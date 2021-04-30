@@ -24,6 +24,7 @@ pub mod status {
     pub const INVALID_RAW_VALUE: &str = "Invalid raw image value";
     pub const UNSUPPORTED_INSTRUMENT: &str = "Unsupported instrument";
     pub const UNSUPPORTED_COLOR_CHANNEL: &str = "Unsupported color channel";
+    pub const CACHE_NOT_INITIALIZED: &str = "Cache not initialized";
 }
 
 
