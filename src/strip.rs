@@ -126,6 +126,10 @@ impl Strip {
         Ok("ok")
     }
 
+    pub fn paste_into(&self, into:&mut ImageBuffer, y:usize) {
+        into.paste_mut(&self.buffer, 0, y);
+    }
+
     pub fn infill(&mut self) -> error::Result<&'static str> {
         if self.infill_applied {
             return Err("Infill correction already applied");

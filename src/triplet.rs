@@ -41,6 +41,17 @@ impl Triplet {
         Ok(new_triplet)
     }
 
+    pub fn paste_into(&self, into:&mut ImageBuffer, y:usize) -> error::Result<&'static str>  {
+        if self.channels.len() != 3 {
+            return  Err("Empty data, cannot paste");
+        }
+        self.channels[BLUE_CHANNEL].paste_into(into, y);
+        self.channels[GREEN_CHANNEL].paste_into(into, y + constants::STRIP_HEIGHT);
+        self.channels[RED_CHANNEL].paste_into(into, y + constants::STRIP_HEIGHT + constants::STRIP_HEIGHT);
+
+        Ok("ok")
+    }
+
     pub fn apply_darknoise(&mut self)  -> error::Result<&'static str> {
         for i in self.channels.iter_mut() {
             match i.apply_darknoise() {

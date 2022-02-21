@@ -7,6 +7,8 @@ use junocam_processing::{
     enums
 };
 
+use sciimg::enums::ImageMode;
+
 mod common;
 
 #[test]
@@ -37,4 +39,9 @@ fn test_load_image() {
     raw_image.apply_hot_pixel_correction(5, 2.0).expect("Error wih hot pixel correction");
     raw_image.apply_weights(0.9, 0.9, 0.9).expect("Error applying channel weight values");
 
+
+    // Reassemble all data back into a full strip stack
+    let _assembled_final = raw_image.assemble();
+
+    //_assembled_final.save("test.png", ImageMode::U16BIT);
 }

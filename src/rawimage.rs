@@ -8,6 +8,7 @@ use crate::{
 
 use sciimg::{
     imagebuffer::ImageBuffer, 
+    enums::ImageMode,
     error
 };
 
@@ -37,6 +38,19 @@ impl RawImage {
         rawimage.split_triplets();
 
         Ok(rawimage)
+    }
+
+    pub fn assemble(&self) -> ImageBuffer {
+        let mut assembled_buffer = ImageBuffer::new_with_fill(self.rawdata.width, self.rawdata.height, 0.0).unwrap();
+        assembled_buffer.mode = ImageMode::U16BIT;
+
+        let mut y : usize = 0;
+        for triplet in self.triplets.iter() {
+            triplet.paste_into(&mut assembled_buffer, y).expect("Failed to paste into assembled buffer");
+            y = y + constants::STRIP_HEIGHT * 3;
+        }
+
+        assembled_buffer
     }
 
     fn split_triplets(&mut self) {
