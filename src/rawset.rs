@@ -3,16 +3,21 @@ use crate::{
     path, 
     constants, 
     rawimage, 
-    metadata, 
-    error
+    metadata
 };
 
+use sciimg::{
+    error, 
+};
 
 pub struct RawSet {
     pub image : rawimage::RawImage,
     pub metadata : metadata::Metadata,
 }
 
+/* Represents the raw image and metadata sets
+ * 
+ */
 impl RawSet {
 
     pub fn open(metadata_path:&str, image_path:&str) -> error::Result<RawSet> {

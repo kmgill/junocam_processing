@@ -103,9 +103,11 @@ pub mod filters {
 }
 
 pub mod cal {
+
+    // These will need to be adjusted and/or a bit more dynamic
     const fn data_dir() -> &'static str {
         if cfg!(debug_assertions) {
-            return "src/cal";
+            return "src/calib";
         } else {
             return "/usr/share/junocam_processing/data/";
         }
@@ -120,9 +122,9 @@ pub mod cal {
     pub const JNO_FLATFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_1.png");
     pub const JNO_FLATFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_0.png");
 
-    pub const JNO_DARKFIELD_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_red.png");
-    pub const JNO_DARKFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_green.png");
-    pub const JNO_DARKFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_blue.png");
+    pub const JNO_DARKFIELD_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_red.tif");
+    pub const JNO_DARKFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_green.tif");
+    pub const JNO_DARKFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_blue.tif");
 
 
 }

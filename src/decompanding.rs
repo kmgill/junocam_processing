@@ -1,6 +1,5 @@
 
 use crate::{
-    imagebuffer::ImageBuffer, 
     constants, 
     enums
 };
@@ -90,7 +89,7 @@ pub const LIN16 : [u32; 256]  = [0, 16, 32, 48, 64, 80, 96, 112, 128, 144, 160, 
 
 
 
-fn table_from_enum(bit_mode:enums::SampleBitMode) -> Result<[u32; 256], &'static str> {
+pub fn table_from_enum(bit_mode:enums::SampleBitMode) -> Result<[u32; 256], &'static str> {
     match bit_mode {
         enums::SampleBitMode::SQROOT => Ok(SQROOT),
         enums::SampleBitMode::LIN1 => Ok(LIN1),
@@ -99,21 +98,3 @@ fn table_from_enum(bit_mode:enums::SampleBitMode) -> Result<[u32; 256], &'static
         _ => Err(constants::status::INVALID_ENUM_VALUE) // wut?
     }
 }
-
-pub fn decompand_buffer(buffer:&mut ImageBuffer, bit_mode:enums::SampleBitMode) -> Result<&'static str, &'static str> {
-
-    let table = table_from_enum(bit_mode).unwrap();
-
-    for x in 0..buffer.width {
-        for y in 0..buffer.height {
-            let raw_value = buffer.get(x, y).unwrap() as usize;
-            if raw_value > 255 {
-                return Err(constants::status::INVALID_RAW_VALUE);
-            }
-            let ilt_value = table[raw_value];
-            buffer.put(x, y, ilt_value as f32).unwrap();
-        }
-    }
-    Ok(constants::status::OK)
-}
-

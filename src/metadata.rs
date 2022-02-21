@@ -4,9 +4,13 @@ use json;
 use crate::{
     path, 
     constants, 
-    enums, 
+    enums
+};
+
+use sciimg::{
     error
 };
+
 use std::fs;
 use chrono::prelude::*;
 

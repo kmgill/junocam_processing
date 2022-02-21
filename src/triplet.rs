@@ -1,87 +1,110 @@
 
 use crate::{
     strip::Strip, 
-    imagebuffer::ImageBuffer, 
-    decompanding, 
     constants, 
-    enums, 
+    enums
+};
+
+use sciimg::{ 
+    imagebuffer::ImageBuffer, 
     error
 };
 
 
 pub struct Triplet {
     pub buffer : ImageBuffer,
-    red : Strip,
-    green : Strip,
-    blue : Strip,
-    empty : bool,
+    channels : Vec<Strip>
     // Will need timing & pointing
 }
+
+const RED_CHANNEL : usize = 2;
+const GREEN_CHANNEL : usize = 1;
+const BLUE_CHANNEL : usize = 0;
 
 impl Triplet {
 
     pub fn new_from_imagebuffer(buffer:&ImageBuffer) -> error::Result<Triplet> {
-        Ok(Triplet{
+
+        let mut new_triplet = Triplet{
             buffer: buffer.clone(),
-            red: Strip::new_empty().unwrap(),
-            green: Strip::new_empty().unwrap(),
-            blue: Strip::new_empty().unwrap(),
-            empty: false
-        })
+            channels: Vec::with_capacity(3)
+        };
+
+        let red_data = new_triplet.buffer.get_slice(2 * constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
+        let green_data = new_triplet.buffer.get_slice(constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
+        let blue_data = new_triplet.buffer.get_slice(0, constants::STRIP_HEIGHT).unwrap();
+
+        new_triplet.channels.push(Strip::new_from_imagebuffer(&blue_data, enums::Camera::BLUE).unwrap());
+        new_triplet.channels.push(Strip::new_from_imagebuffer(&green_data, enums::Camera::GREEN).unwrap());
+        new_triplet.channels.push(Strip::new_from_imagebuffer(&red_data, enums::Camera::RED).unwrap());
+
+        Ok(new_triplet)
     }
 
-    pub fn is_empty(&self) -> bool {
-        self.empty
+    pub fn apply_darknoise(&mut self)  -> error::Result<&'static str> {
+        for i in self.channels.iter_mut() {
+            match i.apply_darknoise() {
+                Ok(_) => {},
+                Err(e) => { return Err(e); }
+            }
+        }
+
+        Ok(constants::status::OK)
     }
 
-    pub fn decompand(&mut self) -> error::Result<&'static str> {
-        if self.empty {
-            return Err(constants::status::STRUCT_IS_EMPTY);
-        } 
-        
-        // Don't assume SQROOT
-        decompanding::decompand_buffer(&mut self.buffer, enums::SampleBitMode::SQROOT).unwrap();
+    pub fn infill(&mut self) -> error::Result<&'static str> {
+        for i in self.channels.iter_mut() {
+            match i.infill() {
+                Ok(_) => {},
+                Err(e) => { return Err(e); }
+            }
+        }
 
-        // Think about throwing an error if one or more strips are empty, too
-        if !self.red.is_empty() {
-            self.red.decompand().unwrap();
+        Ok(constants::status::OK)
+    }
+
+    pub fn apply_hot_pixel_correction(&mut self, window_size:i32, threshold:f32) -> error::Result<&'static str> {
+        for i in self.channels.iter_mut() {
+            match i.apply_hot_pixel_correction(window_size, threshold) {
+                Ok(_) => {},
+                Err(e) => { return Err(e); }
+            }
         }
-        if !self.green.is_empty() {
-            self.green.decompand().unwrap();
+
+        Ok(constants::status::OK)
+    }
+
+    pub fn decompand(&mut self, ilttype:enums::SampleBitMode) -> error::Result<&'static str> {
+        for i in self.channels.iter_mut() {
+            match i.decompand(ilttype) {
+                Ok(_) => {},
+                Err(e) => { return Err(e); }
+            }
         }
-        if !self.blue.is_empty() {
-            self.blue.decompand().unwrap();
-        }
-        
+
         Ok(constants::status::OK)
     }
 
     pub fn apply_weights(&mut self, red_weight:f32, green_weight:f32, blue_weight:f32) -> error::Result<&'static str> {
-        // Think about throwing an error if one or more strips are empty.
-        if !self.red.is_empty() {
-            self.red.apply_weight(red_weight).unwrap();
+        match self.channels[RED_CHANNEL].apply_weight(red_weight) {
+            Ok(_) => {},
+            Err(e) => { return Err(e); }
         }
-        if !self.green.is_empty() {
-            self.green.apply_weight(green_weight).unwrap();
+
+        match self.channels[GREEN_CHANNEL].apply_weight(green_weight) {
+            Ok(_) => {},
+            Err(e) => { return Err(e); }
         }
-        if !self.blue.is_empty() {
-            self.blue.apply_weight(blue_weight).unwrap();
+
+
+        match self.channels[BLUE_CHANNEL].apply_weight(blue_weight) {
+            Ok(_) => {},
+            Err(e) => { return Err(e); }
         }
         
         Ok(constants::status::OK)
 
     }
 
-    pub fn extract_triplet_from_buffer(&mut self) -> error::Result<&'static str> {
 
-        let blue_data = self.buffer.get_slice(0, constants::STRIP_HEIGHT).unwrap();
-        let green_data = self.buffer.get_slice(constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
-        let red_data = self.buffer.get_slice(2 * constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
-
-        self.blue = Strip::new_from_imagebuffer(&blue_data, enums::Camera::BLUE).unwrap();
-        self.green = Strip::new_from_imagebuffer(&green_data, enums::Camera::GREEN).unwrap();
-        self.red = Strip::new_from_imagebuffer(&red_data, enums::Camera::RED).unwrap();
-
-        Ok(constants::status::OK)
-    }
 }

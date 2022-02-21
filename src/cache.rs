@@ -1,4 +1,4 @@
-use crate::{
+use sciimg::{
     imagebuffer::ImageBuffer, 
     error
 };

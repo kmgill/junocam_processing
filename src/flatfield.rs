@@ -1,9 +1,12 @@
 use crate::{
     constants, 
-    imagebuffer::ImageBuffer, 
-    error, 
     enums,
     cache
+};
+
+use sciimg::{
+    imagebuffer::ImageBuffer,
+    error
 };
 
 use std::sync::Mutex;

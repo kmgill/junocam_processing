@@ -14,14 +14,9 @@ fn test_load_image_set() {
     assert!(path::file_exists(common::constants::TEST_JSON_FILE_PATH));
 
     // Open the test set
-    let mut rs = rawset::RawSet::open(common::constants::TEST_JSON_FILE_PATH, common::constants::TEST_RAW_IMAGE_FILE_PATH).unwrap();
-
-    // Triplet count should be zero since we haven't split them out from
-    // the raw image
-    assert_eq!(rs.image.get_triplet_count(), 0);
+    let rs = rawset::RawSet::open(common::constants::TEST_JSON_FILE_PATH, common::constants::TEST_RAW_IMAGE_FILE_PATH).unwrap();
 
     // Split the raw into triplet and verify the count
-    rs.image.split_triplets().unwrap();
     assert_eq!(rs.image.get_triplet_count(), 26);
 
     // Make sure the triplet count jives with what we'd 

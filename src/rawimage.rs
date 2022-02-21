@@ -1,11 +1,14 @@
 
 use crate::{
-    imagebuffer::ImageBuffer, 
-    print, 
     path, 
     triplet, 
-    error, 
-    constants
+    constants,
+    enums
+};
+
+use sciimg::{
+    imagebuffer::ImageBuffer, 
+    error
 };
 
 
@@ -23,29 +26,80 @@ impl RawImage {
             return Err(constants::status::FILE_NOT_FOUND);
         }
 
-        let rawdata = ImageBuffer::from_file(raw_image_path).unwrap();
-
-        Ok(RawImage{
-            rawdata: rawdata,
+        let mut rawimage = RawImage{
+            rawdata: match ImageBuffer::from_file(raw_image_path) {
+                Ok(b) => b,
+                Err(e) => { return Err(e); }
+            },
             triplets: Vec::new()
-        })
+        };
+
+        rawimage.split_triplets();
+
+        Ok(rawimage)
     }
 
-    pub fn split_triplets(&mut self) -> error::Result<&str> {
+    fn split_triplets(&mut self) {
 
+        if self.triplets.len() > 0 {
+            panic!("Triplets already split out");
+        }
         let triplet_count = self.rawdata.height / (constants::STRIP_HEIGHT * 3);
 
         for i in 0..triplet_count {
             let triplet_data = self.rawdata.get_slice(i * (constants::STRIP_HEIGHT * 3), constants::STRIP_HEIGHT * 3).unwrap();
-            let mut triplet = triplet::Triplet::new_from_imagebuffer(&triplet_data).unwrap();
-            triplet.extract_triplet_from_buffer().unwrap();
+            let triplet = triplet::Triplet::new_from_imagebuffer(&triplet_data).unwrap();
             self.triplets.push(triplet);
         }
-
-        Ok(constants::status::OK)
     }
 
     pub fn get_triplet_count(&self) -> u8 {
         self.triplets.len() as u8
     }
+
+    pub fn apply_darknoise(&mut self)  -> error::Result<&'static str> {
+        for triplet in self.triplets.iter_mut() {
+            triplet.apply_darknoise().expect("Error adark/flat field correction");
+        }
+
+        Ok("ok")
+    }
+
+    pub fn apply_hot_pixel_correction(&mut self, hpc_window_size:i32, hpc_threshold:f32)  -> error::Result<&'static str> {
+
+        for triplet in self.triplets.iter_mut() {
+            triplet.apply_hot_pixel_correction(hpc_window_size, hpc_threshold).expect("Error applying hot pixel correction");
+        }
+
+        Ok("ok")
+    }
+
+    pub fn apply_infill_correction(&mut self)  -> error::Result<&'static str> {
+
+        for triplet in self.triplets.iter_mut() {
+            triplet.infill().expect("Error applying infill correction");
+        }
+
+        Ok("ok")
+    }
+
+    pub fn appy_decomanding(&mut self, ilttype:enums::SampleBitMode)  -> error::Result<&'static str> {
+
+        for triplet in self.triplets.iter_mut() {
+            triplet.decompand(ilttype).expect("Error applying decompanding");
+        }
+
+        Ok("ok")
+    }
+
+    pub fn apply_weights(&mut self, red_weight:f32, green_weight:f32, blue_weight:f32) -> error::Result<&'static str> {
+        for triplet in self.triplets.iter_mut() {
+            triplet.apply_weights(red_weight, green_weight, blue_weight).expect("Error applying decompanding");
+        }
+
+        Ok("ok")
+    }
+
+
+    
 }
