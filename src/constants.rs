@@ -104,27 +104,17 @@ pub mod filters {
 
 pub mod cal {
 
-    // These will need to be adjusted and/or a bit more dynamic
-    const fn data_dir() -> &'static str {
-        if cfg!(debug_assertions) {
-            return "src/calib";
-        } else {
-            return "/usr/share/junocam_processing/data/";
-        }
-    }
+    pub const JNO_INPAINT_MASK_RED : &str = "junocam_inpaint_mask_pj32_v1_red.png";
+    pub const JNO_INPAINT_MASK_GREEN : &str = "junocam_inpaint_mask_pj32_v1_green.png";
+    pub const JNO_INPAINT_MASK_BLUE : &str = "junocam_inpaint_mask_pj32_v1_blue.png";
 
-    //pub const M20_INPAINT_MASK_RIGHT_PATH : &str = const_format::formatcp!("{}/{}", data_dir(), "M20_MCZ_RIGHT_INPAINT_MASK_V1.png");
-    pub const JNO_INPAINT_MASK_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_red.png");
-    pub const JNO_INPAINT_MASK_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_green.png");
-    pub const JNO_INPAINT_MASK_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_inpaint_mask_pj32_v1_blue.png");
+    pub const JNO_FLATFIELD_RED : &str = "junocam_rgb_flatfield_v3_2.png";
+    pub const JNO_FLATFIELD_GREEN : &str = "junocam_rgb_flatfield_v3_1.png";
+    pub const JNO_FLATFIELD_BLUE : &str = "junocam_rgb_flatfield_v3_0.png";
 
-    pub const JNO_FLATFIELD_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_2.png");
-    pub const JNO_FLATFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_1.png");
-    pub const JNO_FLATFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_rgb_flatfield_v3_0.png");
-
-    pub const JNO_DARKFIELD_RED : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_red.tif");
-    pub const JNO_DARKFIELD_GREEN : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_green.tif");
-    pub const JNO_DARKFIELD_BLUE : &str = const_format::formatcp!("{}/{}", data_dir(), "junocam_dark_pj28_v1_blue.tif");
+    pub const JNO_DARKFIELD_RED : &str = "junocam_dark_pj28_v1_red.tif";
+    pub const JNO_DARKFIELD_GREEN : &str = "junocam_dark_pj28_v1_green.tif";
+    pub const JNO_DARKFIELD_BLUE : &str = "junocam_dark_pj28_v1_blue.tif";
 
 
 }

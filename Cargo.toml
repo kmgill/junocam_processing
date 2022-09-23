@@ -7,18 +7,27 @@ edition = "2018"
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [lib]
-name = "junocam_processing"
+name = "junocam"
 doctest = false
+
+[[bin]]
+name = "juno"
+path = "bin/juno.rs"
 
 [features]
 
 [dependencies]
-image = "0.23.14"
-clap = "2.33.3"
+image = "0.24.1"
+clap = { version = "3.2.4", features = ["derive"] }
 spice = "0.1.0"
 zip = "0.5.11"
 json = "0.12.4"
 chrono = "0.4.19"
 const_format = "0.2.14"
 lazy_static = "1.4.0"
-sciimg = "0.2.1"
+sciimg = "0.3.3"
+wild = "2.0.4"
+serde = { version = "1.0.125", features = ["derive"] }
+colored = "2.0.0"
+termsize = "0.1.6"
+dirs = "4.0.0"

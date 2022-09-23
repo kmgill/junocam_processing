@@ -1,7 +1,8 @@
 use crate::{
     constants, 
     enums,
-    cache
+    cache,
+    path
 };
 
 use sciimg::{
@@ -18,11 +19,11 @@ lazy_static! {
 pub fn load_flat(camera:enums::Camera) -> error::Result<ImageBuffer> {
     match camera {
         enums::Camera::RED => 
-                Ok(CACHE.lock().unwrap().check_red(constants::cal::JNO_FLATFIELD_RED).unwrap()),
+                Ok(CACHE.lock().unwrap().check_red( &path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_RED.to_string()).unwrap()).unwrap()),
         enums::Camera::GREEN => 
-                Ok(CACHE.lock().unwrap().check_green(constants::cal::JNO_FLATFIELD_GREEN).unwrap()), 
+                Ok(CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_GREEN.to_string()).unwrap()).unwrap()), 
         enums::Camera::BLUE => 
-                Ok(CACHE.lock().unwrap().check_blue(constants::cal::JNO_FLATFIELD_BLUE).unwrap()),
+                Ok(CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_BLUE.to_string()).unwrap()).unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
     }
 }

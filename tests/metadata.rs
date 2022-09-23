@@ -1,6 +1,6 @@
 
 use json;
-use junocam_processing::{
+use junocam::{
     path, 
     constants, 
     metadata, 

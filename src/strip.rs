@@ -3,7 +3,8 @@ use crate::{
     constants, 
     enums, 
     cache,
-    decompanding as ilttables
+    decompanding as ilttables,
+    path
 };
 
 use sciimg::{
@@ -52,11 +53,11 @@ pub fn inpaint_supported_for_camera(camera:enums::Camera) -> bool {
 fn load_mask(camera:enums::Camera) -> error::Result<ImageBuffer> {
     match camera {
         enums::Camera::RED => 
-                Ok(CACHE.lock().unwrap().check_red(constants::cal::JNO_INPAINT_MASK_RED).unwrap()),
+                Ok(CACHE.lock().unwrap().check_red(&path::locate_calibration_file(&constants::cal::JNO_INPAINT_MASK_RED.to_string()).unwrap()).unwrap()),
         enums::Camera::GREEN => 
-                Ok(CACHE.lock().unwrap().check_green(constants::cal::JNO_INPAINT_MASK_GREEN).unwrap()), 
+                Ok(CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_INPAINT_MASK_GREEN.to_string()).unwrap()).unwrap()), 
         enums::Camera::BLUE => 
-                Ok(CACHE.lock().unwrap().check_blue(constants::cal::JNO_INPAINT_MASK_BLUE).unwrap()),
+                Ok(CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_INPAINT_MASK_BLUE.to_string()).unwrap()).unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
     }
 }
@@ -64,23 +65,25 @@ fn load_mask(camera:enums::Camera) -> error::Result<ImageBuffer> {
 fn load_flat_file(camera:enums::Camera) -> error::Result<ImageBuffer> {
     match camera {
         enums::Camera::RED => 
-                Ok(CACHE.lock().unwrap().check_red(constants::cal::JNO_FLATFIELD_RED).unwrap()),
+                Ok(CACHE.lock().unwrap().check_red(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_RED.to_string()).unwrap()).unwrap()),
         enums::Camera::GREEN => 
-                Ok(CACHE.lock().unwrap().check_green(constants::cal::JNO_FLATFIELD_GREEN).unwrap()), 
+                Ok(CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_GREEN.to_string()).unwrap()).unwrap()), 
         enums::Camera::BLUE => 
-                Ok(CACHE.lock().unwrap().check_blue(constants::cal::JNO_FLATFIELD_BLUE).unwrap()),
+                Ok(CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_BLUE.to_string()).unwrap()).unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
     }
 }
 
+
+
 fn load_dark_file(camera:enums::Camera) -> error::Result<ImageBuffer> {
     match camera {
         enums::Camera::RED => 
-                Ok(CACHE.lock().unwrap().check_red(constants::cal::JNO_DARKFIELD_RED).unwrap()),
+                Ok(CACHE.lock().unwrap().check_red(&path::locate_calibration_file(&constants::cal::JNO_DARKFIELD_RED.to_string()).unwrap()).unwrap()),
         enums::Camera::GREEN => 
-                Ok(CACHE.lock().unwrap().check_green(constants::cal::JNO_DARKFIELD_GREEN).unwrap()), 
+                Ok(CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_DARKFIELD_GREEN.to_string()).unwrap()).unwrap()), 
         enums::Camera::BLUE => 
-                Ok(CACHE.lock().unwrap().check_blue(constants::cal::JNO_DARKFIELD_BLUE).unwrap()),
+                Ok(CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_DARKFIELD_BLUE.to_string()).unwrap()).unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
     }
 }

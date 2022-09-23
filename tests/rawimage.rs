@@ -1,13 +1,11 @@
 
-use junocam_processing::{
+use junocam::{
     path, 
     constants, 
     rawimage, 
     metadata,
     enums
 };
-
-use sciimg::enums::ImageMode;
 
 mod common;
 

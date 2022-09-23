@@ -15,7 +15,7 @@ impl ImageCache {
         ImageCache{red:None, green:None, blue:None}
     }
 
-    pub fn check_red(&mut self, path:&str) -> error::Result<ImageBuffer> {
+    pub fn check_red(&mut self, path:&String) -> error::Result<ImageBuffer> {
         match &self.red {
             None => {
                 self.red = Some(ImageBuffer::from_file(path).unwrap());
@@ -27,7 +27,7 @@ impl ImageCache {
         }
     }
 
-    pub fn check_green(&mut self, path:&str) -> error::Result<ImageBuffer> {
+    pub fn check_green(&mut self, path:&String) -> error::Result<ImageBuffer> {
         match &self.green {
             None => {
                 self.green = Some(ImageBuffer::from_file(path).unwrap());
@@ -39,7 +39,7 @@ impl ImageCache {
         }
     }
 
-    pub fn check_blue(&mut self, path:&str) -> error::Result<ImageBuffer> {
+    pub fn check_blue(&mut self, path:&String) -> error::Result<ImageBuffer> {
         match &self.blue {
             None => {
                 self.blue = Some(ImageBuffer::from_file(path).unwrap());
