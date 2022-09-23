@@ -1,0 +1,70 @@
+MISSION_NAME=JUNO
+SPACECRAFT_NAME=JUNO
+DATA_SET_ID="SPICE_SPK_FILE"
+KERNEL_TYPE_ID="SPK"
+PRODUCT_ID="spk_pre_220614_221109_220810_jm0450.xsp"
+PRODUCT_CREATION_TIME=2022-08-10T09:01:34
+PRODUCER_ID="NAV"
+MISSION_PHASE_NAME="ALL"
+PRODUCT_VERSION_TYPE="Test"
+PLATFORM_OR_MOUNTING_NAME="N/A"
+START_TIME=2022-06-14T02:58:51
+STOP_TIME=2022-11-09T21:38:28
+SPACECRAFT_CLOCK_START_COUNT="N/A"
+SPACECRAFT_CLOCK_STOP_COUNT="N/A"
+TARGET_NAME={ "JUNO", "EARTH BARYCENTER", "JUPITER BARYCENTER", "SUN", "MOON", "EARTH", "JUPITER" }
+INSTRUMENT_NAME="N/A"
+INSTRUMENT_ID="N/A"
+SOURCE_PRODUCT_ID="UNK"
+NOTE="SPICE transfer format SPK file."
+ 
+Created by Monte 160.2 on 2022/08/10 16:01 UTC.
+ 
+\beginlabel
+ 
+MISSION_NAME                 = "JUNO"
+SPACECRAFT_NAME              = "JUNO"
+DATA_SET_ID                  = "SPICE_SPK_FILE"
+KERNEL_TYPE_ID               = "SPK"
+PRODUCT_ID                   = "spk_pre_220614_221109_220810_jm0450.xsp"
+PRODUCT_CREATION_TIME        = 2022-08-10T09:01:34
+PRODUCER_ID                  = "NAV"
+MISSION_PHASE_NAME           = "ALL"
+PRODUCT_VERSION_TYPE         = "Test"
+PLATFORM_OR_MOUNTING_NAME    = "N/A"
+START_TIME                   = 2022-06-14T02:58:51
+STOP_TIME                    = 2022-11-09T21:38:28
+SPACECRAFT_CLOCK_START_COUNT = "N/A"
+SPACECRAFT_CLOCK_STOP_COUNT  = "N/A"
+TARGET_NAME                  = {
+                               "JUNO",
+                               "EARTH BARYCENTER",
+                               "JUPITER BARYCENTER",
+                               "SUN",
+                               "MOON",
+                               "EARTH",
+                               "JUPITER"
+                               }
+INSTRUMENT_NAME              = "N/A"
+INSTRUMENT_ID                = "N/A"
+SOURCE_PRODUCT_ID            = "UNK"
+NOTE                         = "SPICE transfer format SPK file."
+ 
+\endlabel
+ 
+ 
+ 
+BRIEF -- Version 3.0.0, January 14, 2008 -- Toolkit Version N0064
+ 
+ 
+Summary for: spk_pre_220614_221109_220810_jm0450.bsp
+ 
+Bodies                Start of Interval (ET)          End of Interval (ET)
+-------               -----------------------------   -----------------------------
+-61 JUNO              2022 JUN 14 03:00:00.000        2022 NOV 09 21:39:36.994
+3 EARTH BARYCENTER                Same coverage as previous object
+5 JUPITER BARYCENTER              Same coverage as previous object
+10 SUN                            Same coverage as previous object
+301 MOON                          Same coverage as previous object
+399 EARTH                         Same coverage as previous object
+599 JUPITER                       Same coverage as previous object

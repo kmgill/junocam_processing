@@ -19,7 +19,7 @@ path = "bin/juno.rs"
 [dependencies]
 image = "0.24.1"
 clap = { version = "3.2.4", features = ["derive"] }
-spice = "0.1.0"
+rust-spice = "0.7.3"
 zip = "0.5.11"
 json = "0.12.4"
 chrono = "0.4.19"
