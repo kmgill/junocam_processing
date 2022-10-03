@@ -25,7 +25,8 @@ json = "0.12.4"
 chrono = "0.4.19"
 const_format = "0.2.14"
 lazy_static = "1.4.0"
-sciimg = "0.3.3"
+sciimg = "0.3.5"
+#sciimg = { path = "../sciimg" }
 wild = "2.0.4"
 serde = { version = "1.0.125", features = ["derive"] }
 colored = "2.0.0"

@@ -31,12 +31,3 @@ impl SampleBitMode {
         }
     }
 }
-
-// Image data value range. Doesn't enforce actual
-// value data types in the structs
-#[derive(Debug, Copy, Clone, PartialEq)]
-pub enum ImageMode {
-    U8BIT,
-    U12BIT,
-    U16BIT
-}

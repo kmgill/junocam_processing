@@ -69,6 +69,17 @@ pub fn locate_calibration_file(file_path:&String) -> error::Result<String> {
         None => {}
     };    
 
+    // Spice
+    match option_env!("JUNOBASE") {
+        Some(v) => locations.insert(0, String::from(v)),
+        None => {}
+    };    
+
+    match option_env!("SPICEBASE") {
+        Some(v) => locations.insert(0, String::from(v)),
+        None => {}
+    };    
+
     // Add a path based on the location of the running executable
     // Intended for Windows installations
     match std::env::current_exe() {

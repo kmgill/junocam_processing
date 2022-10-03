@@ -22,4 +22,7 @@ pub mod rawset;
 pub mod flatfield;
 pub mod darkfield;
 pub mod cache;
+pub mod jcspice;
+pub mod junocam;
+pub mod drawable;
 // pub mod calibration;
