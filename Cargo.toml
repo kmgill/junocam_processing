@@ -32,3 +32,4 @@ serde = { version = "1.0.125", features = ["derive"] }
 colored = "2.0.0"
 termsize = "0.1.6"
 dirs = "4.0.0"
+toml = "0.5.8"

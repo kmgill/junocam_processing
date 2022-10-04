@@ -7,11 +7,11 @@ use junocam::{
     junocam as jc,
     strip::Strip,
     jcspice,
-    enums::SampleBitMode,
     metadata,
     drawable,
     drawable::Drawable,
-    drawable::Point
+    drawable::Point,
+    config
 };
 
 use junocam::vprintln;
@@ -21,7 +21,6 @@ use std::process;
 use sciimg::prelude::*;
 use sciimg::vector::Vector;
 use sciimg::matrix::Matrix;
-use std::fs;
 
 
 pub struct LatLon{
@@ -87,6 +86,15 @@ pub struct Assemble {
 
     #[clap(long, short, help = "Output image")]
     output: String,
+
+    #[clap(long, short = 'R', help = "Red weight")]
+    red_weight: Option<f32>,
+
+    #[clap(long, short = 'G', help = "Green weight")]
+    green_weight: Option<f32>,
+
+    #[clap(long, short = 'B', help = "Blue weight")]
+    blue_weight: Option<f32>
 }   
 
 
@@ -102,10 +110,29 @@ fn xy_to_map_point(x:usize, y:usize, framelet:&FrameletParameters, spc_mtx:&Matr
 
 impl RunnableSubcommand for Assemble {
     fn run(&self) {
+
+        let defaults = config::load_configuration().expect("Failed to load config file");
+
         if ! path::file_exists(&self.input) {
             eprintln!("ERROR: Input file not found!");
             process::exit(1);
         }
+
+        let red_weight = match self.red_weight {
+            Some(r) => r,
+            None => defaults.defaults.red_weight
+        };
+
+        let green_weight = match self.green_weight {
+            Some(g) => g,
+            None => defaults.defaults.green_weight
+        };
+
+        let blue_weight = match self.blue_weight {
+            Some(b) => b,
+            None => defaults.defaults.blue_weight
+        };
+
 
         vprintln!("Loading metadata from {}", self.metadata);
         let md = metadata::Metadata::new_from_file(&self.metadata).expect("Failed to load input metadata");
@@ -114,14 +141,13 @@ impl RunnableSubcommand for Assemble {
         vprintln!("Decompanding with table '{:?}'", md.sample_bit_mode_id);
         let mut raw_image = rawimage::RawImage::new_from_image_with_decompand(&self.input, md.sample_bit_mode_id).unwrap();
 
-        //raw_image.apply_darknoise().expect("Error with dark/flat field correction");
+        raw_image.apply_darknoise().expect("Error with dark/flat field correction");
         raw_image.apply_infill_correction().expect("Error with infill correction");
         raw_image.apply_hot_pixel_correction(5, 2.0).expect("Error wih hot pixel correction");
-        raw_image.apply_weights(0.902, 1.0, 1.8879).expect("Error applying channel weight values");
+        raw_image.apply_weights(red_weight, green_weight, blue_weight).expect("Error applying channel weight values");
     
         jcspice::furnish_base();
         jcspice::furnish("kernels/spk/spk_rec_210127_210321_210329.bsp").expect("Failed to load spice kernel");
-        jcspice::furnish("kernels/ck/juno_sc_rec_210220_210222_v01.bc").expect("Failed to load spice kernel");
         jcspice::furnish("kernels/ck/juno_sc_rec_210221_210227_v01.bc").expect("Failed to load spice kernel");
 
         let interframe_delay = md.interframe_delay as f64;

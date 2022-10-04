@@ -1,5 +1,4 @@
 
-use crate::enums::*;
 use sciimg::{
     prelude::*,
     min,

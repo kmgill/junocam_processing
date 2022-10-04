@@ -2,8 +2,7 @@
 use crate::{
     strip::Strip, 
     constants, 
-    enums,
-    vprintln
+    enums
 };
 
 use sciimg::{ 
@@ -34,7 +33,7 @@ impl Triplet {
         let red_data = new_triplet.buffer.get_slice(2 * constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
         let green_data = new_triplet.buffer.get_slice(constants::STRIP_HEIGHT, constants::STRIP_HEIGHT).unwrap();
         let blue_data = new_triplet.buffer.get_slice(0, constants::STRIP_HEIGHT).unwrap();
-        
+
         new_triplet.channels.push(Strip::new_from_imagebuffer(&blue_data, enums::Camera::BLUE).unwrap());
         new_triplet.channels.push(Strip::new_from_imagebuffer(&green_data, enums::Camera::GREEN).unwrap());
         new_triplet.channels.push(Strip::new_from_imagebuffer(&red_data, enums::Camera::RED).unwrap());

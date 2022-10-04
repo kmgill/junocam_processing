@@ -4,7 +4,6 @@ use crate::{
     triplet, 
     constants,
     enums,
-    vprintln,
     decompanding as ilttables
 };
 
@@ -13,9 +12,7 @@ use sciimg::*;
 
 extern crate image;
 use image::{
-    open, 
-    DynamicImage, 
-    Rgba
+    open
 };
 
 trait FromFile8Bit {

@@ -101,20 +101,3 @@ pub mod filters {
     pub const BLUE: &str = "BLUE";
     pub const METHANE: &str = "METHANE";
 }
-
-pub mod cal {
-
-    pub const JNO_INPAINT_MASK_RED : &str = "junocam_inpaint_mask_pj32_v1_red.png";
-    pub const JNO_INPAINT_MASK_GREEN : &str = "junocam_inpaint_mask_pj32_v1_green.png";
-    pub const JNO_INPAINT_MASK_BLUE : &str = "junocam_inpaint_mask_pj32_v1_blue.png";
-
-    pub const JNO_FLATFIELD_RED : &str = "junocam_rgb_flatfield_v3_2.png";
-    pub const JNO_FLATFIELD_GREEN : &str = "junocam_rgb_flatfield_v3_1.png";
-    pub const JNO_FLATFIELD_BLUE : &str = "junocam_rgb_flatfield_v3_0.png";
-
-    pub const JNO_DARKFIELD_RED : &str = "junocam_dark_pj28_v1_red.tif";
-    pub const JNO_DARKFIELD_GREEN : &str = "junocam_dark_pj28_v1_green.tif";
-    pub const JNO_DARKFIELD_BLUE : &str = "junocam_dark_pj28_v1_blue.tif";
-
-
-}

@@ -2,10 +2,8 @@
 use crate::{
     constants, 
     enums, 
-    cache,
     decompanding as ilttables,
-    path,
-    vprintln
+    calibration
 };
 
 use sciimg::{
@@ -28,69 +26,6 @@ pub struct Strip {
     // Strip should know which band it is along with timing and pointing
 }
 
-use std::sync::Mutex;
-
-lazy_static! {
-    static ref DARK_CACHE:Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
-    static ref FLAT_CACHE:Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
-    static ref MASK_CACHE:Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
-}
-
-pub fn determine_mask_file(instrument:enums::Camera) -> error::Result<&'static str> {
-    match instrument {
-        enums::Camera::RED => Ok(constants::cal::JNO_INPAINT_MASK_RED),
-        enums::Camera::GREEN => Ok(constants::cal::JNO_INPAINT_MASK_GREEN),
-        enums::Camera::BLUE => Ok(constants::cal::JNO_INPAINT_MASK_BLUE),
-        _ => Err(constants::status::INVALID_ENUM_VALUE)
-    }
-}
-
-pub fn inpaint_supported_for_camera(camera:enums::Camera) -> bool {
-    let r = determine_mask_file(camera);
-    match r {
-        Ok(_) => true,
-        Err(_) => false
-    }
-}
-
-fn load_mask(camera:enums::Camera) -> error::Result<ImageBuffer> {
-    match camera {
-        enums::Camera::RED => 
-                Ok(MASK_CACHE.lock().unwrap().check_red(&path::locate_calibration_file(&constants::cal::JNO_INPAINT_MASK_RED.to_string()).unwrap()).unwrap()),
-        enums::Camera::GREEN => 
-                Ok(MASK_CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_INPAINT_MASK_GREEN.to_string()).unwrap()).unwrap()), 
-        enums::Camera::BLUE => 
-                Ok(MASK_CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_INPAINT_MASK_BLUE.to_string()).unwrap()).unwrap()),
-        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
-    }
-}
-
-fn load_flat_file(camera:enums::Camera) -> error::Result<ImageBuffer> {
-    match camera {
-        enums::Camera::RED => 
-                Ok(FLAT_CACHE.lock().unwrap().check_red(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_RED.to_string()).unwrap()).unwrap()),
-        enums::Camera::GREEN => 
-                Ok(FLAT_CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_GREEN.to_string()).unwrap()).unwrap()), 
-        enums::Camera::BLUE => 
-                Ok(FLAT_CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_FLATFIELD_BLUE.to_string()).unwrap()).unwrap()),
-        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
-    }
-}
-
-
-
-fn load_dark_file(camera:enums::Camera) -> error::Result<ImageBuffer> {
-    match camera {
-        enums::Camera::RED => 
-                Ok(DARK_CACHE.lock().unwrap().check_red(&path::locate_calibration_file(&constants::cal::JNO_DARKFIELD_RED.to_string()).unwrap()).unwrap()),
-        enums::Camera::GREEN => 
-                Ok(DARK_CACHE.lock().unwrap().check_green(&path::locate_calibration_file(&constants::cal::JNO_DARKFIELD_GREEN.to_string()).unwrap()).unwrap()), 
-        enums::Camera::BLUE => 
-                Ok(DARK_CACHE.lock().unwrap().check_blue(&path::locate_calibration_file(&constants::cal::JNO_DARKFIELD_BLUE.to_string()).unwrap()).unwrap()),
-        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL)
-    }
-}
-
 
 impl Strip {
 
@@ -111,15 +46,18 @@ impl Strip {
             return Err("Dark/Noise calibration already applied");
         }
 
-        let mut dark = match load_dark_file(self.camera) {
+        let mut dark = match calibration::load_dark_file(self.camera) {
             Ok(m) => m,
             Err(_) => return Err("Error loading dark field")
         };
 
-        let mut flat = match load_flat_file(self.camera) {
+        let mut flat = match calibration::load_flat_file(self.camera) {
             Ok(m) => m,
             Err(_) => return Err("Error loading flat field")
         };
+
+        dark = dark.divide_into(65535.0).unwrap();
+        flat = flat.divide_into(65535.0).unwrap();
 
         let darkflat = flat.subtract(&dark).unwrap();
         let mean_flat = darkflat.mean();
@@ -140,7 +78,7 @@ impl Strip {
             return Err("Infill correction already applied");
         }
 
-        let mask = match load_mask(self.camera) {
+        let mask = match calibration::load_mask(self.camera) {
             Ok(m) => m,
             Err(_) => return Err("Error loading mask")
         };

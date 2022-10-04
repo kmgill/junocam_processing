@@ -1,10 +1,12 @@
 use spice;
 
-use crate::path;
-use crate::vprintln;
+use crate::{
+    path,
+    vprintln,
+    config
+};
 use sciimg::error;
 use sciimg::matrix::Matrix;
-use sciimg::vector::Vector;
 
 pub static JUNO : i32 = -61;
 
@@ -26,10 +28,10 @@ impl Channel {
 
     pub fn to_id(&self) -> i32 {
         match self {
-            RED => JUNO_JUNOCAM_RED,
-            GREEN => JUNO_JUNOCAM_GREEN,
-            BLUE => JUNO_JUNOCAM_BLUE,
-            METHANE => JUNO_JUNOCAM_METHANE
+            Channel::RED => JUNO_JUNOCAM_RED,
+            Channel::GREEN => JUNO_JUNOCAM_GREEN,
+            Channel::BLUE => JUNO_JUNOCAM_BLUE,
+            Channel::METHANE => JUNO_JUNOCAM_METHANE
         }
     }
 }
@@ -50,15 +52,19 @@ pub fn furnish(kernel_path:&str) -> error::Result<&str> {
 }
 
 pub fn furnish_base() {
-    // Make this dynamic
-    furnish("kernels/pck/pck00010.tpc").expect("Failed to load spice kernel");
-    furnish("kernels/fk/juno_v12.tf").expect("Failed to load spice kernel");
-    furnish("kernels/ik/juno_junocam_v03.ti").expect("Failed to load spice kernel");
-    furnish("kernels/lsk/naif0012.tls").expect("Failed to load spice kernel");
-    furnish("kernels/sclk/jno_sclkscet_00074.tsc").expect("Failed to load spice kernel");
-    furnish("kernels/tspk/de436s.bsp").expect("Failed to load spice kernel");
-    furnish("kernels/tspk/jup310.bsp").expect("Failed to load spice kernel");
-    furnish("kernels/spk/juno_struct_v04.bsp").expect("Failed to load spice kernel");
+    match config::load_configuration() {
+        Ok(c) => {
+
+            for k in c.spice.kernels {
+                furnish(&k.as_str()).expect("Failed to load spice kernel");
+            }
+
+        },
+        Err(why) => {
+            eprintln!("Failed to load configuration file: {}", why);
+            panic!("Failed to load configuration file prior to base kernel loading");
+        }
+    }
 }
 
 

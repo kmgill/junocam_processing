@@ -1,0 +1,28 @@
+
+[spice]
+kernels = [
+    "kernels/pck/pck00010.tpc",
+    "kernels/fk/juno_v12.tf",
+    "kernels/ik/juno_junocam_v03.ti",
+    "kernels/lsk/naif0012.tls",
+    "kernels/sclk/jno_sclkscet_00074.tsc",
+    "kernels/spk/juno_struct_v04.bsp"
+]
+
+[calibration]
+dark_red = "junocam_dark_pj28_v1_red.tif"
+dark_green = "junocam_dark_pj28_v1_green.tif"
+dark_blue = "junocam_dark_pj28_v1_blue.tif"
+
+inpaint_red = "junocam_inpaint_mask_pj32_v1_red.png"
+inpaint_green = "junocam_inpaint_mask_pj32_v1_green.png"
+inpaint_blue = "junocam_inpaint_mask_pj32_v1_blue.png"
+
+flat_red = "junocam_rgb_flatfield_v3_2.png"
+flat_green = "junocam_rgb_flatfield_v3_1.png"
+flat_blue = "junocam_rgb_flatfield_v3_0.png"
+
+[defaults]
+red_weight = 0.902
+green_weight = 1.0
+blue_weight = 1.8879

@@ -10,7 +10,7 @@ use sciimg::vector::Vector;
 
 
 pub struct FrameletParameters {
-    id:i32,
+    pub id:i32,
     cx:f64,
     cy:f64,
     k1:f64,
@@ -39,7 +39,7 @@ impl FrameletParameters {
     pub fn undistort(&self, c0:f64, c1:f64) -> (f64, f64) {
         let mut xd = c0;
         let mut yd = c1;
-        for i in 0..5 {
+        for _ in 0..5 {
             let r2 = xd.powi(2) + yd.powi(2);
             let dr = 1.0 + self.k1 * r2 + self.k2 * r2 * r2;
             xd = c0 / dr;
@@ -80,9 +80,9 @@ impl FrameletParameters {
     */
     pub fn vector_to_xy(&self, v:&Vector) -> (f64, f64) {
         let alpha = v.z / self.fl();
-        let mut cam0 = v.x / alpha;
-        let mut cam1 = v.y / alpha;
-        let mut cam = self.distort(cam0, cam1);
+        let cam0 = v.x / alpha;
+        let cam1 = v.y / alpha;
+        let cam = self.distort(cam0, cam1);
         let x = cam.0 + self.cx;
         let y = cam.1 + self.cy;
         (x, y)
@@ -107,14 +107,6 @@ impl FrameletParameters {
 
     
 }
-
-/* 
-    JUNO_JUNOCAM_METHANE           -61504
-    JUNO_JUNOCAM_BLUE              -61501
-    JUNO_JUNOCAM                   -61500
-    JUNO_JUNOCAM_GREEN             -61502
-    JUNO_JUNOCAM_RED               -61503
-    */
 
 
 pub static JUNO_JUNOCAM_METHANE : FrameletParameters = FrameletParameters{
