@@ -3,10 +3,18 @@ use spice;
 use crate::{
     path,
     vprintln,
+    veprintln,
     config
 };
 use sciimg::error;
 use sciimg::matrix::Matrix;
+
+use glob::glob;
+use std::path::Path;
+use chrono::{
+    Utc, 
+    TimeZone
+};
 
 pub static JUNO : i32 = -61;
 
@@ -63,6 +71,71 @@ pub fn furnish_base() {
         Err(why) => {
             eprintln!("Failed to load configuration file: {}", why);
             panic!("Failed to load configuration file prior to base kernel loading");
+        }
+    }
+}
+
+fn kernel_name_date_to_et(name_date:&String) -> error::Result<f64> {
+    match Utc.datetime_from_str(&format!("{} 00:00:00", name_date), "%y%m%d %T") {
+        Ok(dt) => {
+            let dt_reformatted = dt.format("%Y-%h-%d %H:%M:%S%.3f").to_string();
+            Ok(string_to_et(&dt_reformatted))
+        },
+        Err(why) => {
+            veprintln!("Error: {:?}  -- '{}'", why, &name_date.as_str());
+            Err("Failed to parse kernel datetime")
+        }
+    }  
+} 
+
+
+fn kernel_name_nth_part(ck_file:&String, n:usize) -> Option<String> {
+
+    // Kinda hacky... (this whole thing is 'kinda' hacky...)
+    let path = Path::new(&ck_file);
+    if let Some(s) = Path::new(path.file_name().unwrap()).file_stem() {
+        let filename = s.to_str().unwrap().to_string();
+        let mut split = filename.split("_");
+        Some(split.nth(n).unwrap().to_string())
+    } else {
+        None
+    }
+}
+
+fn get_kernel_range_et(ck_file:&String) -> Option<(f64, f64)> {
+    
+    let start_date_s = kernel_name_nth_part(ck_file, 3).unwrap();
+    let end_date_s = kernel_name_nth_part(ck_file, 4).unwrap();
+
+    let kernel_start_et = kernel_name_date_to_et(&start_date_s).unwrap();
+    let kernel_end_et = kernel_name_date_to_et(&end_date_s).unwrap();
+    
+    Some((kernel_start_et, kernel_end_et))
+}
+
+pub fn find_kernel_with_date(search_pattern:&String, time_et:f64) -> error::Result<String> {
+    match option_env!("JUNOBASE") {
+        Some(v) => {
+            let abs_search_pattern = format!("{}/{}", v, search_pattern);
+            vprintln!("spice search pattern: {}", abs_search_pattern);
+
+            for entry in glob(&abs_search_pattern).expect("Failed to read glob pattern") {
+                match entry {
+                    Ok(path) => {
+                        if let Some(range) = get_kernel_range_et(&path.to_str().unwrap().to_string()) {
+                            if range.0 <= time_et && time_et <= range.1 {
+                                return Ok(path.to_str().unwrap().to_string())
+                            }
+                        }
+                    },
+                    Err(e) => vprintln!("{:?}", e)
+                }
+            }
+
+            Err("Matching kernel not found")
+        },
+        None => {
+            Err("JUNOBASE not specified")
         }
     }
 }

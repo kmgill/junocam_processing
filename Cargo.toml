@@ -2,7 +2,7 @@
 name = "junocam_processing"
 version = "0.1.0"
 authors = ["Kevin M. Gill <apoapsys@gmail.com>"]
-edition = "2018"
+edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
@@ -11,7 +11,7 @@ name = "junocam"
 doctest = false
 
 [[bin]]
-name = "juno"
+name = "junocam"
 path = "bin/juno.rs"
 
 [features]
@@ -33,3 +33,4 @@ colored = "2.0.0"
 termsize = "0.1.6"
 dirs = "4.0.0"
 toml = "0.5.8"
+glob = "0.3.0"

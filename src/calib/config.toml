@@ -1,13 +1,20 @@
 
 [spice]
+
+# Base kernels
 kernels = [
     "kernels/pck/pck00010.tpc",
     "kernels/fk/juno_v12.tf",
     "kernels/ik/juno_junocam_v03.ti",
-    "kernels/lsk/naif0012.tls",
+    "kernels/lsk/naif0012.tls", 
     "kernels/sclk/jno_sclkscet_00074.tsc",
     "kernels/spk/juno_struct_v04.bsp"
 ]
+
+# Spacecraft Pointing
+ck_rec_pattern = "kernels/ck/juno_sc_rec_??????_??????_v??.bc"
+ck_pre_pattern = "kernels/ck/juno_sc_raw_??????_??????.bc"
+
 
 [calibration]
 dark_red = "junocam_dark_pj28_v1_red.tif"

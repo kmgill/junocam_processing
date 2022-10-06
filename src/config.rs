@@ -36,7 +36,9 @@ pub struct CalibrationFiles {
 
 #[derive(Deserialize)]
 pub struct Spice {
-    pub kernels : Vec<String>
+    pub kernels : Vec<String>,
+    pub ck_rec_pattern: String,
+    pub ck_pre_pattern: String
 }
 
 #[derive(Deserialize)]

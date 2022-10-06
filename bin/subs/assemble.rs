@@ -26,6 +26,21 @@ use sciimg::{
 
 use std::process;
 
+enum SupportedLens {
+    Cylindrical,
+    Fisheye
+}
+
+impl SupportedLens {
+
+    pub fn from(s:&str) -> Option<SupportedLens> {
+        match s.to_lowercase().as_str() {
+            "cylindrical" => Some(SupportedLens::Cylindrical),
+            "fisheye" => Some(SupportedLens::Fisheye),
+            _ => None
+        }
+    }
+}
 
 #[derive(clap::Args)]
 #[clap(author, version, about = "Assemble triplets to cylindrical map", long_about = None)]
@@ -46,11 +61,32 @@ pub struct Assemble {
     green_weight: Option<f32>,
 
     #[clap(long, short = 'B', help = "Blue weight")]
-    blue_weight: Option<f32>
+    blue_weight: Option<f32>,
+
+    #[clap(long, short, help = "Use predicted kernels")]
+    predicted: bool,
+
+    #[clap(long, short, help = "Output width")]
+    width: Option<usize>,
+
+    #[clap(long, short = 'H', help = "Output height")]
+    height: Option<usize>,
+
+    #[clap(long, short, help = "Fisheye camera field of view, in degrees")]
+    fov: Option<f64>,
+
+    #[clap(long, short = 'P', help = "Camera pitch, in degrees", allow_hyphen_values(true))]
+    pitch: Option<f64>,
+
+    #[clap(long, short, help = "Camera yaw, in degrees", allow_hyphen_values(true))]
+    yaw: Option<f64>,
+
+    #[clap(long, short, help = "Camera lens (cylindrical, fisheye)")]
+    lens: Option<String>
 }   
 
 
-fn xy_to_map_point<T:Lens>(x:usize, y:usize, framelet:&FrameletParameters, spc_mtx:&Matrix, lens:&T, strip:&Strip, q:&Quaternion) -> Point {
+fn xy_to_map_point(x:usize, y:usize, framelet:&FrameletParameters, spc_mtx:&Matrix, lens:&Box<dyn Lens>, strip:&Strip, q:&Quaternion) -> Point {
     let mut v = framelet.xy_to_vector(x as f64, y as f64);
     v = spc_mtx.multiply_vector(&v);
     v = q.rotate_vector(&v);
@@ -67,7 +103,9 @@ fn xy_to_map_point<T:Lens>(x:usize, y:usize, framelet:&FrameletParameters, spc_m
 impl RunnableSubcommand for Assemble {
     fn run(&self) {
 
-        let defaults = config::load_configuration().expect("Failed to load config file");
+        let juno_config = config::load_configuration().expect("Failed to load config file");
+
+        
 
         if ! path::file_exists(&self.input) {
             eprintln!("ERROR: Input file not found!");
@@ -76,18 +114,44 @@ impl RunnableSubcommand for Assemble {
 
         let red_weight = match self.red_weight {
             Some(r) => r,
-            None => defaults.defaults.red_weight
+            None => juno_config.defaults.red_weight
         };
 
         let green_weight = match self.green_weight {
             Some(g) => g,
-            None => defaults.defaults.green_weight
+            None => juno_config.defaults.green_weight
         };
 
         let blue_weight = match self.blue_weight {
             Some(b) => b,
-            None => defaults.defaults.blue_weight
+            None => juno_config.defaults.blue_weight
         };
+
+        let output_width = match self.width {
+            Some(w) => w,
+            None => 1024
+        };
+        vprintln!("Output image width: {}", output_width);
+
+        let output_height = match self.height {
+            Some(h) => h,
+            None => 1024
+        };
+        vprintln!("Output image height: {}", output_height);
+
+        let camera_lens = match &self.lens {
+            Some(l) => {
+                if let Some(lens) = SupportedLens::from(&l.as_str()) {
+                    lens
+                } else {
+                    eprintln!("Error: Invalid camera lens requested: {}", l);
+                    eprintln!("Use either 'cylidrical' or 'fisheye'");
+                    process::exit(1);
+                }
+            },
+            None => SupportedLens::Fisheye
+        };
+
 
 
         vprintln!("Loading metadata from {}", self.metadata);
@@ -97,14 +161,40 @@ impl RunnableSubcommand for Assemble {
         vprintln!("Decompanding with table '{:?}'", md.sample_bit_mode_id);
         let mut raw_image = rawimage::RawImage::new_from_image_with_decompand(&self.input, md.sample_bit_mode_id).unwrap();
 
+        let fov = match self.fov {
+            Some(f) => f,
+            None => 180.0
+        };
+        vprintln!("Fisheye field of view: {}", fov);
+
+        let pitch = match self.pitch {
+            Some(p) => p.to_radians() * -1.0, // Make it positive up
+            None => 0.0
+        };
+        vprintln!("Fisheye camera pitch: {}", pitch.to_degrees());
+
+        let yaw = match self.yaw {
+            Some(y) => y.to_radians() * -1.0, // Make it positive right
+            None => 0.0
+        };
+        vprintln!("Fisheye camera yaw: {}", yaw.to_degrees());
+
+
+
+        vprintln!("Applying framelet calibration...");
         raw_image.apply_darknoise().expect("Error with dark/flat field correction");
+
+        vprintln!("Applying blemish infill correction...");
         raw_image.apply_infill_correction().expect("Error with infill correction");
+
+        vprintln!("Applying hot pixel detection and correction...");
         raw_image.apply_hot_pixel_correction(5, 2.0).expect("Error wih hot pixel correction");
+        
+        vprintln!("Applying channel weight multiples ({}, {}, {} X R, G, B)...", red_weight, green_weight, blue_weight);
         raw_image.apply_weights(red_weight, green_weight, blue_weight).expect("Error applying channel weight values");
     
+        vprintln!("Loading base kernels...");
         jcspice::furnish_base();
-        jcspice::furnish("kernels/spk/spk_rec_210127_210321_210329.bsp").expect("Failed to load spice kernel");
-        jcspice::furnish("kernels/ck/juno_sc_rec_210221_210227_v01.bc").expect("Failed to load spice kernel");
 
         let interframe_delay = md.interframe_delay as f64;
         let interframe_delay_correction = 0.001;
@@ -116,6 +206,24 @@ impl RunnableSubcommand for Assemble {
         vprintln!("Spice-formatted start time: {}", start_time);
         let start_time_et = jcspice::string_to_et(&start_time) + start_time_correction;
 
+        let kernel_search_pattern = if self.predicted {
+            juno_config.spice.ck_pre_pattern
+        } else {
+            juno_config.spice.ck_rec_pattern
+        };
+
+        vprintln!("Finding spacecraft pointing kernel...");
+        match jcspice::find_kernel_with_date(&kernel_search_pattern, start_time_et) {
+            Ok(kernel_path) => {
+                vprintln!("Found CK kernel with matching time range: {}", kernel_path);
+                jcspice::furnish(&kernel_path).expect("Failed to load kernel");
+            },
+            Err(why) => {
+                eprintln!("Error: {:?}", why);
+                process::exit(1);
+            }
+        }
+
         let stop_time_utc = md.stop_time;
         vprintln!("Stop time from metadata: {:?}", stop_time_utc);
         let stop_time = stop_time_utc.format("%Y-%h-%d %H:%M:%S%.3f").to_string();
@@ -125,16 +233,27 @@ impl RunnableSubcommand for Assemble {
         let mid_time_et = (start_time_et + stop_time_et) / 2.0;
         let midtime_matrix = jcspice::pos_transform_matrix("JUNO_JUNOCAM", "J2000", mid_time_et);
 
-        let r = Quaternion::from_pitch_roll_yaw(90.0_f64.to_radians(), 0.0, 0.0);
+        let r = Quaternion::from_pitch_roll_yaw(180.0_f64.to_radians(), 0.0, 0.0);
         let p = Quaternion::from_pitch_roll_yaw(0.0, 90.0_f64.to_radians(), 0.0);
-        let q = r.times(&p.times(&Quaternion::from_matrix(&midtime_matrix).invert()));
 
-        let mut cyl_map = RgbImage::create(1024, 1024);
+        // We flip them to handle Spice's Z-up to our Y-up coordinates
+        let user_yaw = Quaternion::from_pitch_roll_yaw(0.0, 0.0, pitch);
+        let user_pitch = Quaternion::from_pitch_roll_yaw(0.0, yaw, pitch);
+
+        let q = user_yaw.times(&user_pitch.times(&r.times(&p.times(&Quaternion::from_matrix(&midtime_matrix).invert()))));
+
+        let mut cyl_map = RgbImage::create(output_width, output_height);
+
+        let lens: Box<dyn Lens> = match camera_lens {
+            SupportedLens::Cylindrical => Box::new(CylindricalLens::new(cyl_map.width, cyl_map.height, 90.0, -90.0, 0.0, 360.0)),
+            SupportedLens::Fisheye => Box::new(FisheyeEquisolidLens::new(cyl_map.width, cyl_map.height, 13.0, fov))
+        };
         //let lens = CylindricalLens::new(cyl_map.width, cyl_map.height, 90.0, -90.0, 0.0, 360.0);
-        let lens = FisheyeEquisolidLens::new(cyl_map.width, cyl_map.height, 13.0, 180.0);
+        //let lens = FisheyeEquisolidLens::new(cyl_map.width, cyl_map.height, 13.0, fov);
 
-
+        vprintln!("Processing triplets...");
         for t in 0..raw_image.get_triplet_count() {
+            vprintln!("Processing triplet #{}", (t + 1));
             let triplet = &raw_image.triplets[t as usize];
 
             let image_time_et = start_time_et + (t as f64 * (interframe_delay +  interframe_delay_correction));
@@ -157,7 +276,7 @@ impl RunnableSubcommand for Assemble {
                         let bl = xy_to_map_point(x, y+1, &framelet, &spc_mtx, &lens, strip, &q);
                         let br = xy_to_map_point(x+1, y+1, &framelet, &spc_mtx, &lens, strip, &q);
                         let tr = xy_to_map_point(x+1, y, &framelet, &spc_mtx, &lens, strip, &q);
-                        //vprintln!("Point: {:?}", tl);
+                        
                         cyl_map.paint_square(&tl, &bl, &br, &tr, false, 2 - s);
 
                     }
@@ -165,10 +284,15 @@ impl RunnableSubcommand for Assemble {
             }
         }
 
+        vprintln!("Data range, pre-normalization:");
         vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());
         //cyl_map.normalize_to_16bit();
         cyl_map.normalize_to_16bit_seperate_channels();
+
+        vprintln!("Data range, post-normalization:");
         vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());
+
+        vprintln!("Writing output image to {}", self.output);
         cyl_map.save(&self.output);
     }
 }

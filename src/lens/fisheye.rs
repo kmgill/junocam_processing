@@ -31,7 +31,7 @@ impl Lens for FisheyeEquisolidLens {
 
         Point {
             x: u * (self.image_width as f64),
-            y: v * (self.image_height as f64),
+            y: (1.0 - v) * (self.image_height as f64),
             v: 0.0
         }
     }

@@ -69,13 +69,8 @@ pub fn locate_calibration_file(file_path:&String) -> error::Result<String> {
         None => {}
     };    
 
-    // Spice
+    // Spice, Juno specific
     match option_env!("JUNOBASE") {
-        Some(v) => locations.insert(0, String::from(v)),
-        None => {}
-    };    
-
-    match option_env!("SPICEBASE") {
         Some(v) => locations.insert(0, String::from(v)),
         None => {}
     };    
