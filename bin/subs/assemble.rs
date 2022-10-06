@@ -197,8 +197,11 @@ impl RunnableSubcommand for Assemble {
         jcspice::furnish_base();
 
         let interframe_delay = md.interframe_delay as f64;
-        let interframe_delay_correction = 0.001;
-        let start_time_correction = 0.06188;
+        let interframe_delay_correction = juno_config.defaults.interframe_delay_correction;
+        let start_time_correction = juno_config.defaults.start_time_correction;
+        vprintln!("Interframe delay: {}", interframe_delay);
+        vprintln!("Interframe delay correction: {}", interframe_delay_correction);
+        vprintln!("Start time correction: {}", start_time_correction);
 
         let start_time_utc = md.start_time;
         vprintln!("Start time from metadata: {:?}", start_time_utc);

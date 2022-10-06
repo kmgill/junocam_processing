@@ -16,7 +16,9 @@ use serde::{
 pub struct Defaults {
     pub red_weight: f32,
     pub green_weight: f32,
-    pub blue_weight: f32
+    pub blue_weight: f32,
+    pub interframe_delay_correction: f64,
+    pub start_time_correction: f64
 }
 
 #[derive(Deserialize)]

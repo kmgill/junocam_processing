@@ -33,3 +33,5 @@ flat_blue = "junocam_rgb_flatfield_v3_0.png"
 red_weight = 0.902
 green_weight = 1.0
 blue_weight = 1.8879
+interframe_delay_correction = 0.001
+start_time_correction = 0.06188
