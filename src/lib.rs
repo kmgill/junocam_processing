@@ -22,3 +22,4 @@ pub mod junocam;
 pub mod drawable;
 pub mod config;
 pub mod calibration;
+pub mod lens;
