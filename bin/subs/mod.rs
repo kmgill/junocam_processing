@@ -7,3 +7,4 @@ pub mod calibrate;
 pub mod hpc;
 pub mod weights;
 pub mod process;
+pub mod centerofmass;

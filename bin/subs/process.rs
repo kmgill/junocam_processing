@@ -105,8 +105,6 @@ impl RunnableSubcommand for Process {
 
         let juno_config = config::load_configuration().expect("Failed to load config file");
 
-        
-
         if ! path::file_exists(&self.input) {
             eprintln!("ERROR: Input file not found!");
             process::exit(1);
@@ -149,7 +147,7 @@ impl RunnableSubcommand for Process {
                     process::exit(1);
                 }
             },
-            None => SupportedLens::Fisheye
+            None => SupportedLens::from(&juno_config.defaults.camera_lens_projection).expect("Invalid default camera lens projection")
         };
 
 
@@ -163,7 +161,7 @@ impl RunnableSubcommand for Process {
 
         let fov = match self.fov {
             Some(f) => f,
-            None => 180.0
+            None => juno_config.defaults.fisheye_field_of_view
         };
         vprintln!("Fisheye field of view: {}", fov);
 
@@ -181,18 +179,28 @@ impl RunnableSubcommand for Process {
 
 
 
-        vprintln!("Applying framelet calibration...");
-        raw_image.apply_darknoise().expect("Error with dark/flat field correction");
+        if juno_config.defaults.apply_calibration {
+            vprintln!("Applying framelet calibration...");
+            raw_image.apply_darknoise().expect("Error with dark/flat field correction");
+        }
 
-        vprintln!("Applying blemish infill correction...");
-        raw_image.apply_infill_correction().expect("Error with infill correction");
+        if juno_config.defaults.apply_infill_correction {
+            vprintln!("Applying blemish infill correction...");
+            raw_image.apply_infill_correction().expect("Error with infill correction");
+        }
 
-        vprintln!("Applying hot pixel detection and correction...");
-        raw_image.apply_hot_pixel_correction(5, 2.0).expect("Error wih hot pixel correction");
-        
-        vprintln!("Applying channel weight multiples ({}, {}, {} X R, G, B)...", red_weight, green_weight, blue_weight);
-        raw_image.apply_weights(red_weight, green_weight, blue_weight).expect("Error applying channel weight values");
-    
+        if juno_config.defaults.apply_hot_pixel_correction {
+            vprintln!("Applying hot pixel detection and correction...");
+            vprintln!("Hot Pixel Correction Window Size: {}", juno_config.defaults.hpc_window_size);
+            vprintln!("Hot Pixel Threshold: {}", juno_config.defaults.hpc_threshold);
+            raw_image.apply_hot_pixel_correction(juno_config.defaults.hpc_window_size, juno_config.defaults.hpc_threshold).expect("Error wih hot pixel correction");
+        }
+
+        if juno_config.defaults.apply_weights {
+            vprintln!("Applying channel weight multiples ({}, {}, {} X R, G, B)...", red_weight, green_weight, blue_weight);
+            raw_image.apply_weights(red_weight, green_weight, blue_weight).expect("Error applying channel weight values");
+        }
+
         vprintln!("Loading base kernels...");
         jcspice::furnish_base();
 
@@ -289,8 +297,14 @@ impl RunnableSubcommand for Process {
 
         vprintln!("Data range, pre-normalization:");
         vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());
-        //cyl_map.normalize_to_16bit();
-        cyl_map.normalize_to_16bit_seperate_channels();
+
+        if juno_config.defaults.correlated_color_balancing {
+            vprintln!("Applying color channel correlated value stretching/normalization");
+            cyl_map.normalize_to_16bit();
+        } else {
+            vprintln!("Applying color channel isolated value stretching/normalization");
+            cyl_map.normalize_to_16bit_seperate_channels();
+        }
 
         vprintln!("Data range, post-normalization:");
         vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());

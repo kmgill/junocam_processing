@@ -29,7 +29,8 @@ enum Juno {
     Calibrate(calibrate::Calibrate),
     Hpc(hpc::Hpc),
     Weights(weights::Weights),
-    Process(process::Process)
+    Process(process::Process),
+    CenterOfMass(centerofmass::CenterOfMass)
 }
 
 
@@ -62,6 +63,9 @@ fn main() {
             args.run();
         },
         Juno::Process(args) => {
+            args.run();
+        },
+        Juno::CenterOfMass(args) => {
             args.run();
         }
     };

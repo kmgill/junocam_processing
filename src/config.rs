@@ -1,5 +1,6 @@
 use crate::{
-    path
+    path,
+    vprintln
 };
 
 use std::fs::File;
@@ -12,16 +13,25 @@ use serde::{
     Deserialize
 };
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Defaults {
     pub red_weight: f32,
     pub green_weight: f32,
     pub blue_weight: f32,
+    pub camera_lens_projection: String,
+    pub fisheye_field_of_view: f64,
     pub interframe_delay_correction: f64,
-    pub start_time_correction: f64
+    pub start_time_correction: f64,
+    pub apply_calibration: bool,
+    pub apply_infill_correction: bool,
+    pub apply_hot_pixel_correction: bool,
+    pub hpc_window_size: i32,
+    pub hpc_threshold: f32,
+    pub apply_weights: bool,
+    pub correlated_color_balancing: bool
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct CalibrationFiles {
     pub dark_red: String,
     pub dark_green: String,
@@ -36,26 +46,38 @@ pub struct CalibrationFiles {
     pub inpaint_blue: String
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct Spice {
     pub kernels : Vec<String>,
     pub ck_rec_pattern: String,
     pub ck_pre_pattern: String
 }
 
-#[derive(Deserialize)]
+#[derive(Deserialize, Clone)]
 pub struct JunoConfig {
     pub spice: Spice,
     pub calibration: CalibrationFiles,
     pub defaults: Defaults
 }
 
+
+static mut JUNO_CONFIG : Option<JunoConfig> = None;
+
 pub fn load_configuration() -> error::Result<JunoConfig> {
 
-    let confile_file_path = path::locate_calibration_file(&String::from("config.toml"));
+    unsafe {
+        if let Some(c) = &JUNO_CONFIG {
+            return Ok(c.clone());
+        }
+    }
 
-    match confile_file_path {
+    let config_file_path = path::locate_calibration_file(&String::from("config.toml"));
+
+    
+    match config_file_path {
         Ok(config_toml) => {
+            vprintln!("Loading configuration from {}", config_toml);
+
             let mut file = match File::open(&config_toml) {
                 Err(why) => panic!("couldn't open {}", why),
                 Ok(file) => file,
@@ -65,9 +87,11 @@ pub fn load_configuration() -> error::Result<JunoConfig> {
             file.read_to_end(&mut buf).unwrap();
             let toml = String::from_utf8(buf).unwrap();
         
-            let config: JunoConfig = toml::from_str(&toml).unwrap();
-        
-            Ok(config)
+            unsafe {
+                let config : JunoConfig = toml::from_str(&toml).unwrap();
+                JUNO_CONFIG = Some(config);
+                Ok(JUNO_CONFIG.clone().unwrap())
+            }
         },
         Err(_) => {
             panic!("Unable to locate juno configuration file")
