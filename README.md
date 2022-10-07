@@ -93,3 +93,4 @@ Eichstädt, Gerald. "Juno Cam Image Processing" Observatoire de la Côte d'Azur,
 
 Caplinger, M., et al. "Juno Software Interface Specification" Malin Space Science Systems, Inc. 2016-08-31 https://pds-imaging.jpl.nasa.gov/data/juno/JNOJNC_0001/DOCUMENT/JUNO_JNC_EDR_RDR_DPSIS.PDF
 
+Semenov, Boris. "Juno JUNOCAM Instrument Kernel." Version 0.3, 2019-08-07 http://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ik/juno_junocam_v03.ti
