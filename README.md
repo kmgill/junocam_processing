@@ -1,4 +1,3 @@
-[![Rust](https://github.com/kmgill/junocam_processing/actions/workflows/rust.yml/badge.svg)](https://github.com/kmgill/junocam_processing/actions/workflows/rust.yml)
 
 # JunoCam Processing Pipeline
 Dedicated calibration and processing tools for JunoCam.
@@ -32,7 +31,16 @@ Spice files need to be downloaded and pointed to by the `JUNOBASE` environment v
 ### Calibration and Configuration Files
 Calibration files (flats, darks, etc) and the configuration file `config.toml` need to be copied into `~/.junodata` or can be pointed to via an optional `JUNO_DATA` environment variable.
 
-### Base Usage
+## Docker
+The dockerfile demonstrates a method for building and installing the software.
+
+```
+docker build -t juno_proc .
+docker run --name juno_proc -dit juno_proc
+docker exec -it juno_proc bash
+```
+
+## Base Usage
 ```
 USAGE:
     junocam [OPTIONS] <SUBCOMMAND>
@@ -52,7 +60,7 @@ SUBCOMMANDS:
     weights          Infill Correction
 ```
 
-### Processing
+## Processing
 The `process` subcommand provides an end-to-end calibration, blemish repair, & hot pixel correction pipeline.
 
 ```
