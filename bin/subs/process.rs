@@ -43,8 +43,8 @@ impl SupportedLens {
 }
 
 #[derive(clap::Args)]
-#[clap(author, version, about = "Assemble triplets to cylindrical map", long_about = None)]
-pub struct Assemble {
+#[clap(author, version, about = "Process RGB JunoCam image", long_about = None)]
+pub struct Process {
     #[clap(long, short, help = "Input image")]
     input: String,
 
@@ -100,7 +100,7 @@ fn xy_to_map_point(x:usize, y:usize, framelet:&FrameletParameters, spc_mtx:&Matr
     pt
 }
 
-impl RunnableSubcommand for Assemble {
+impl RunnableSubcommand for Process {
     fn run(&self) {
 
         let juno_config = config::load_configuration().expect("Failed to load config file");

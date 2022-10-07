@@ -29,7 +29,7 @@ enum Juno {
     Calibrate(calibrate::Calibrate),
     Hpc(hpc::Hpc),
     Weights(weights::Weights),
-    Assemble(assemble::Assemble)
+    Process(process::Process)
 }
 
 
@@ -61,7 +61,7 @@ fn main() {
         Juno::Weights(args) => {
             args.run();
         },
-        Juno::Assemble(args) => {
+        Juno::Process(args) => {
             args.run();
         }
     };

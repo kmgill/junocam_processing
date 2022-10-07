@@ -6,4 +6,4 @@ pub mod decompand;
 pub mod calibrate;
 pub mod hpc;
 pub mod weights;
-pub mod assemble;
+pub mod process;

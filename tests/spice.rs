@@ -3,7 +3,7 @@ use spice;
 use junocam::jcspice::{self, JUNO_JUNOCAM};
 
 #[test]
-#[ignore]
+#[ignore = "Lack of cspice on GitHub"]
 fn test_spice_basic() {
 
     spice::furnsh("tests/test-data/spice/spk_pre_220614_221109_220810_jm0450.bsp");
@@ -20,6 +20,7 @@ fn test_spice_basic() {
 }
 
 #[test]
+#[ignore = "Lack of cspice on GitHub"]
 fn test_furnish_base() {
     jcspice::furnish_base();
     jcspice::furnish("kernels/spk/spk_rec_220728_220909_220913.bsp");
