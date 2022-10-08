@@ -2,18 +2,7 @@ use crate::subs::runnable::RunnableSubcommand;
 
 use junocam::{
     path,
-    rawimage,
-    junocam as jc,
-    strip::Strip,
-    jcspice,
-    metadata,
-    drawable::Drawable,
-    drawable::Point,
     config,
-    lens::lens::Lens,
-    lens::cylindrical::CylindricalLens,
-    lens::fisheye::FisheyeEquisolidLens,
-    junocam::FrameletParameters,
     vprintln,
     process::{
         ProcessOptions,
@@ -21,13 +10,6 @@ use junocam::{
         SupportedLens
     }
 
-};
-
-use sciimg::{
-    prelude::*,
-    vector::Vector,
-    matrix::Matrix,
-    quaternion::Quaternion
 };
 
 use std::process;
@@ -71,6 +53,9 @@ pub struct Process {
 
     #[clap(long, short, help = "Camera yaw, in degrees", allow_hyphen_values(true))]
     yaw: Option<f64>,
+
+    #[clap(long, short = 'r', help = "Camera roll, in degrees", allow_hyphen_values(true))]
+    roll: Option<f64>,
 
     #[clap(long, short, help = "Camera lens (cylindrical, fisheye)")]
     lens: Option<String>
@@ -149,7 +134,11 @@ impl RunnableSubcommand for Process {
         };
         vprintln!("Fisheye camera yaw: {}", yaw.to_degrees());
 
-
+        let roll = match self.roll {
+            Some(r) => r.to_radians(), 
+            None => 0.0
+        };
+        vprintln!("Fisheye camera roll: {}", roll.to_degrees());
 
         
         match process_image(&ProcessOptions{
@@ -165,9 +154,10 @@ impl RunnableSubcommand for Process {
             fov: fov,
             pitch: pitch,
             yaw: yaw,
+            roll: roll,
             lens: camera_lens,
         })  {
-            Ok(img) => {
+            Ok(_) => {
                 vprintln!("Done")
             },
             Err(why) => {

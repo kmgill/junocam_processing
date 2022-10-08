@@ -1,6 +1,5 @@
 
 use crate::{
-    path,
     rawimage,
     junocam as jc,
     strip::Strip,
@@ -69,6 +68,7 @@ pub struct ProcessOptions {
     pub fov: f64,
     pub pitch: f64,
     pub yaw: f64,
+    pub roll: f64,
     pub lens: SupportedLens
 }   
 
@@ -179,10 +179,11 @@ pub fn process_image(context:&ProcessOptions) -> error::Result<RgbImage> {
     let p = Quaternion::from_pitch_roll_yaw(0.0, 90.0_f64.to_radians(), 0.0);
 
     // We flip them to handle Spice's Z-up to our Y-up coordinates
+    let user_roll = Quaternion::from_pitch_roll_yaw(context.roll, 0.0, 0.0);
     let user_yaw = Quaternion::from_pitch_roll_yaw(0.0, 0.0, context.pitch);
-    let user_pitch = Quaternion::from_pitch_roll_yaw(0.0, context.yaw, context.pitch);
+    let user_pitch = Quaternion::from_pitch_roll_yaw(0.0, context.yaw, 0.0);
 
-    let q = user_yaw.times(&user_pitch.times(&r.times(&p.times(&Quaternion::from_matrix(&midtime_matrix).invert()))));
+    let q = user_roll.times(&user_yaw.times(&user_pitch.times(&r.times(&p.times(&Quaternion::from_matrix(&midtime_matrix).invert())))));
 
     let mut cyl_map = RgbImage::create(context.width, context.height);
 
@@ -219,7 +220,7 @@ pub fn process_image(context:&ProcessOptions) -> error::Result<RgbImage> {
                     let br = xy_to_map_point(x+1, y+1, &framelet, &spc_mtx, &lens, strip, &q);
                     let tr = xy_to_map_point(x+1, y, &framelet, &spc_mtx, &lens, strip, &q);
                     
-                    cyl_map.paint_square(&tl, &bl, &br, &tr, false, 2 - s);
+                    cyl_map.paint_square(&tl, &bl, &br, &tr, true, 2 - s);
 
                 }
             }

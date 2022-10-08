@@ -2,8 +2,7 @@
 use crate::subs::runnable::RunnableSubcommand;
 
 use junocam::{
-    path,
-    rawimage
+    path
 };
 use sciimg::prelude::*;
 use sciimg::util;

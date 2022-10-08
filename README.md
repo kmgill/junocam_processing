@@ -50,14 +50,16 @@ OPTIONS:
     -v, --verbose    Verbose output
 
 SUBCOMMANDS:
-    calibrate        Calibration (dark, flat)
-    decompand        Decompand raw image
-    help             Print this message or the help of the given subcommand(s)
-    hpc              Hot Pixel Correction
-    infill           Infill Correction
-    process          Process RGB JunoCam image
-    triplet-count    Triplet Count
-    weights          Infill Correction
+    calibrate         Calibration (dark, flat)
+    center-of-mass    Center of mass centering
+    decompand         Decompand raw image
+    help              Print this message or the help of the given subcommand(s)
+    hpc               Hot Pixel Correction
+    infill            Infill Correction
+    process           Process RGB JunoCam image
+    triplet-count     Triplet Count
+    weights           Infill Correction
+
 ```
 
 ## Processing
@@ -79,6 +81,7 @@ OPTIONS:
     -o, --output <OUTPUT>                Output image
     -p, --predicted                      Use predicted kernels
     -P, --pitch <PITCH>                  Camera pitch, in degrees
+    -r, --roll <ROLL>                    Camera roll, in degrees
     -R, --red-weight <RED_WEIGHT>        Red weight
     -V, --version                        Print version information
     -w, --width <WIDTH>                  Output width
