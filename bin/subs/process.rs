@@ -1,19 +1,12 @@
 use crate::subs::runnable::RunnableSubcommand;
 
 use junocam::{
-    path,
-    config,
+    config, path,
+    process::{process_image, ProcessOptions, SupportedLens},
     vprintln,
-    process::{
-        ProcessOptions,
-        process_image,
-        SupportedLens
-    }
-
 };
 
 use std::process;
-
 
 #[derive(clap::Args)]
 #[clap(author, version, about = "Process RGB JunoCam image", long_about = None)]
@@ -48,55 +41,67 @@ pub struct Process {
     #[clap(long, short, help = "Fisheye camera field of view, in degrees")]
     fov: Option<f64>,
 
-    #[clap(long, short = 'P', help = "Camera pitch, in degrees", allow_hyphen_values(true))]
+    #[clap(
+        long,
+        short = 'P',
+        help = "Camera pitch, in degrees",
+        allow_hyphen_values(true)
+    )]
     pitch: Option<f64>,
 
-    #[clap(long, short, help = "Camera yaw, in degrees", allow_hyphen_values(true))]
+    #[clap(
+        long,
+        short,
+        help = "Camera yaw, in degrees",
+        allow_hyphen_values(true)
+    )]
     yaw: Option<f64>,
 
-    #[clap(long, short = 'r', help = "Camera roll, in degrees", allow_hyphen_values(true))]
+    #[clap(
+        long,
+        short = 'r',
+        help = "Camera roll, in degrees",
+        allow_hyphen_values(true)
+    )]
     roll: Option<f64>,
 
     #[clap(long, short, help = "Camera lens (cylindrical, fisheye)")]
-    lens: Option<String>
-}   
-
-
+    lens: Option<String>,
+}
 
 impl RunnableSubcommand for Process {
     fn run(&self) {
-
         let juno_config = config::load_configuration().expect("Failed to load config file");
 
-        if ! path::file_exists(&self.input) {
+        if !path::file_exists(&self.input) {
             eprintln!("ERROR: Input file not found!");
             process::exit(1);
         }
 
         let red_weight = match self.red_weight {
             Some(r) => r,
-            None => juno_config.defaults.red_weight
+            None => juno_config.defaults.red_weight,
         };
 
         let green_weight = match self.green_weight {
             Some(g) => g,
-            None => juno_config.defaults.green_weight
+            None => juno_config.defaults.green_weight,
         };
 
         let blue_weight = match self.blue_weight {
             Some(b) => b,
-            None => juno_config.defaults.blue_weight
+            None => juno_config.defaults.blue_weight,
         };
 
         let output_width = match self.width {
             Some(w) => w,
-            None => 1024
+            None => 1024,
         };
         vprintln!("Output image width: {}", output_width);
 
         let output_height = match self.height {
             Some(h) => h,
-            None => 1024
+            None => 1024,
         };
         vprintln!("Output image height: {}", output_height);
 
@@ -109,39 +114,36 @@ impl RunnableSubcommand for Process {
                     eprintln!("Use either 'cylidrical' or 'fisheye'");
                     process::exit(1);
                 }
-            },
-            None => SupportedLens::from(&juno_config.defaults.camera_lens_projection).expect("Invalid default camera lens projection")
+            }
+            None => SupportedLens::from(&juno_config.defaults.camera_lens_projection)
+                .expect("Invalid default camera lens projection"),
         };
 
-
-
-        
         let fov = match self.fov {
             Some(f) => f,
-            None => juno_config.defaults.fisheye_field_of_view
+            None => juno_config.defaults.fisheye_field_of_view,
         };
         vprintln!("Fisheye field of view: {}", fov);
 
         let pitch = match self.pitch {
             Some(p) => p.to_radians() * -1.0, // Make it positive up
-            None => 0.0
+            None => 0.0,
         };
         vprintln!("Fisheye camera pitch: {}", pitch.to_degrees());
 
         let yaw = match self.yaw {
             Some(y) => y.to_radians() * -1.0, // Make it positive right
-            None => 0.0
+            None => 0.0,
         };
         vprintln!("Fisheye camera yaw: {}", yaw.to_degrees());
 
         let roll = match self.roll {
-            Some(r) => r.to_radians(), 
-            None => 0.0
+            Some(r) => r.to_radians(),
+            None => 0.0,
         };
         vprintln!("Fisheye camera roll: {}", roll.to_degrees());
 
-        
-        match process_image(&ProcessOptions{
+        match process_image(&ProcessOptions {
             input: self.input.clone(),
             metadata: self.metadata.clone(),
             output: Some(self.output.clone()),
@@ -156,16 +158,13 @@ impl RunnableSubcommand for Process {
             yaw: yaw,
             roll: roll,
             lens: camera_lens,
-        })  {
+        }) {
             Ok(_) => {
                 vprintln!("Done")
-            },
+            }
             Err(why) => {
                 eprintln!("Error processing image: {}", why)
             }
         }
-
-        
     }
 }
-

@@ -1,33 +1,27 @@
-
-
+use crate::{constants, enums, path};
 use json;
-use crate::{
-    path, 
-    constants, 
-    enums
-};
 
-use sciimg::{
-    error
-};
+use sciimg::error;
 
-use std::fs;
 use chrono::prelude::*;
+use std::fs;
 
 pub struct Filters {
     pub red: bool,
     pub green: bool,
     pub blue: bool,
-    pub methane: bool, // Gonna ignore methane for now. 
+    pub methane: bool, // Gonna ignore methane for now.
 }
 
-
 impl Filters {
-
-    pub fn new(r:bool, g:bool, b:bool) -> Self {
-        Filters {red:r, green:g, blue:b, methane:false}
+    pub fn new(r: bool, g: bool, b: bool) -> Self {
+        Filters {
+            red: r,
+            green: g,
+            blue: b,
+            methane: false,
+        }
     }
-
 }
 
 pub struct Metadata {
@@ -37,7 +31,7 @@ pub struct Metadata {
     pub exposure_duration: f32, // Seconds
     pub file_name: String,
     pub file_records: u32,
-    pub filters: Filters, // Derived from FILTER_NAME
+    pub filters: Filters,             // Derived from FILTER_NAME
     pub focal_plane_temperature: f32, // Kelvin
     pub image_time: DateTime<chrono::Utc>,
     pub instrument_host_name: String,
@@ -67,8 +61,8 @@ pub struct Metadata {
     pub software_name: String,
     pub solar_distance: f32, // kilometers
     pub source_product_id: String,
-    pub spacecraft_altitude: f32, // kilometers
-    pub spacecraft_clock_start_count: f32, // seconds
+    pub spacecraft_altitude: f32,            // kilometers
+    pub spacecraft_clock_start_count: f32,   // seconds
     pub spacecraft_clock_stop_count: String, // Probably not a string when non-zero (N/A)
     pub spacecaft_name: String,
     pub standard_data_product_id: String,
@@ -80,14 +74,13 @@ pub struct Metadata {
     pub token_id: u8, // What even is this?
 }
 
-
 const DATE_FORMAT_STRING: &str = "%Y-%m-%dT%H:%M:%S%.3f";
 
-fn parse_date(date_str:&str) -> DateTime<chrono::Utc> {
+fn parse_date(date_str: &str) -> DateTime<chrono::Utc> {
     Utc.datetime_from_str(date_str, DATE_FORMAT_STRING).unwrap()
 }
 
-fn strip_units(s:&str) -> error::Result<String> {
+fn strip_units(s: &str) -> error::Result<String> {
     let idx = s.find('<');
     let r = s.replace(":", ".");
     if idx == None {
@@ -112,7 +105,11 @@ macro_rules! _D {
 
 macro_rules! _F32 {
     ($a:expr) => {
-        strip_units($a.as_str().unwrap()).unwrap().as_str().parse::<f32>().unwrap()
+        strip_units($a.as_str().unwrap())
+            .unwrap()
+            .as_str()
+            .parse::<f32>()
+            .unwrap()
     };
 }
 
@@ -128,22 +125,20 @@ macro_rules! _U8 {
     };
 }
 
-
 impl Metadata {
-
-    pub fn new_from_file(file_path:&str) -> error::Result<Metadata> {
-        
-        if ! path::file_exists(file_path) {
+    pub fn new_from_file(file_path: &str) -> error::Result<Metadata> {
+        if !path::file_exists(file_path) {
             return Err(constants::status::FILE_NOT_FOUND);
         }
 
-        let json_string_data = fs::read_to_string(file_path).expect(constants::status::ERROR_PARSING_JSON);
+        let json_string_data =
+            fs::read_to_string(file_path).expect(constants::status::ERROR_PARSING_JSON);
         let parsed_json = json::parse(&json_string_data).unwrap();
 
-        Ok(Metadata{
-            image_time:_D!(parsed_json[constants::metadata::IMAGE_TIME]), 
-            start_time:_D!(parsed_json[constants::metadata::START_TIME]), 
-            stop_time:_D!(parsed_json[constants::metadata::STOP_TIME]),
+        Ok(Metadata {
+            image_time: _D!(parsed_json[constants::metadata::IMAGE_TIME]),
+            start_time: _D!(parsed_json[constants::metadata::START_TIME]),
+            stop_time: _D!(parsed_json[constants::metadata::STOP_TIME]),
             compression_type: _S!(parsed_json[constants::metadata::COMPRESSION_TYPE]),
             data_set_id: _S!(parsed_json[constants::metadata::DATA_SET_ID]),
             description: _S!(parsed_json[constants::metadata::DESCRIPTION]),
@@ -151,11 +146,13 @@ impl Metadata {
             file_name: _S!(parsed_json[constants::metadata::FILE_NAME]),
             file_records: _U32!(parsed_json[constants::metadata::FILE_RECORDS]),
             filters: Filters::new(
-                parsed_json[constants::metadata::FILTER_NAME].contains(constants::filters::RED), 
-                parsed_json[constants::metadata::FILTER_NAME].contains(constants::filters::GREEN), 
-                parsed_json[constants::metadata::FILTER_NAME].contains(constants::filters::BLUE)
+                parsed_json[constants::metadata::FILTER_NAME].contains(constants::filters::RED),
+                parsed_json[constants::metadata::FILTER_NAME].contains(constants::filters::GREEN),
+                parsed_json[constants::metadata::FILTER_NAME].contains(constants::filters::BLUE),
             ), // Derived from FILTER_NAME
-            focal_plane_temperature: _F32!(parsed_json[constants::metadata::FOCAL_PLANE_TEMPERATURE]), // Kelvin
+            focal_plane_temperature: _F32!(
+                parsed_json[constants::metadata::FOCAL_PLANE_TEMPERATURE]
+            ), // Kelvin
             instrument_host_name: _S!(parsed_json[constants::metadata::INSTRUMENT_HOST_NAME]),
             instrument_id: _S!(parsed_json[constants::metadata::INSTRUMENT_ID]),
             instrument_name: _S!(parsed_json[constants::metadata::INSTRUMENT_NAME]),
@@ -176,7 +173,11 @@ impl Metadata {
             record_bytes: _U32!(parsed_json[constants::metadata::RECORD_BYTES]),
             sample_bits: _U8!(parsed_json[constants::metadata::SAMPLE_BITS]),
             sample_bit_mask: _S!(parsed_json[constants::metadata::SAMPLE_BIT_MASK]),
-            sample_bit_mode_id: enums::SampleBitMode::from(parsed_json[constants::metadata::SAMPLE_BIT_MODE_ID].as_str().unwrap()),
+            sample_bit_mode_id: enums::SampleBitMode::from(
+                parsed_json[constants::metadata::SAMPLE_BIT_MODE_ID]
+                    .as_str()
+                    .unwrap(),
+            ),
             sample_type: _S!(parsed_json[constants::metadata::SAMPLE_TYPE]),
             sampling_factor: _U8!(parsed_json[constants::metadata::SAMPLING_FACTOR]),
             sequence_id: _S!(parsed_json[constants::metadata::SEQUENCE_ID]),
@@ -184,16 +185,24 @@ impl Metadata {
             solar_distance: _F32!(parsed_json[constants::metadata::SOLAR_DISTANCE]), // kilometers
             source_product_id: _S!(parsed_json[constants::metadata::SOURCE_PRODUCT_ID]),
             spacecraft_altitude: _F32!(parsed_json[constants::metadata::SPACECRAFT_ALTITUDE]), // kilometers
-            spacecraft_clock_start_count: _F32!(parsed_json[constants::metadata::SPACECRAFT_CLOCK_START_COUNT]), // seconds
-            spacecraft_clock_stop_count: _S!(parsed_json[constants::metadata::SPACECRAFT_CLOCK_STOP_COUNT]), // Probably not a string when non-zero (N/A)
+            spacecraft_clock_start_count: _F32!(
+                parsed_json[constants::metadata::SPACECRAFT_CLOCK_START_COUNT]
+            ), // seconds
+            spacecraft_clock_stop_count: _S!(
+                parsed_json[constants::metadata::SPACECRAFT_CLOCK_STOP_COUNT]
+            ), // Probably not a string when non-zero (N/A)
             spacecaft_name: _S!(parsed_json[constants::metadata::SPACECRAFT_NAME]),
-            standard_data_product_id: _S!(parsed_json[constants::metadata::STANDARD_DATA_PRODUCT_ID]),
-            sub_spacecraft_latitude: _F32!(parsed_json[constants::metadata::SUB_SPACECRAFT_LATITUDE]),
-            sub_spacecraft_longitude: _F32!(parsed_json[constants::metadata::SUB_SPACECRAFT_LONGITUDE]),
+            standard_data_product_id: _S!(
+                parsed_json[constants::metadata::STANDARD_DATA_PRODUCT_ID]
+            ),
+            sub_spacecraft_latitude: _F32!(
+                parsed_json[constants::metadata::SUB_SPACECRAFT_LATITUDE]
+            ),
+            sub_spacecraft_longitude: _F32!(
+                parsed_json[constants::metadata::SUB_SPACECRAFT_LONGITUDE]
+            ),
             title: _S!(parsed_json[constants::metadata::TITLE]),
             token_id: 0, // What even is this?
         })
     }
-
-
 }

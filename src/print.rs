@@ -1,37 +1,40 @@
-
 static mut IS_VERBOSE: bool = false;
 
 use chrono::prelude::*;
 use colored::*;
 // use termsize;
 
-const DATETIME_PRINT_FORMAT : &str = "%Y-%m-%d %H:%M:%S%.3f";
+const DATETIME_PRINT_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
 
 pub fn print_datetime() {
-    print!("{} ",  Local::now().format(DATETIME_PRINT_FORMAT).to_string());
+    print!(
+        "{} ",
+        Local::now().format(DATETIME_PRINT_FORMAT).to_string()
+    );
 }
 
 pub fn eprint_datetime() {
-    eprint!("{} ",  Local::now().format(DATETIME_PRINT_FORMAT).to_string());
+    eprint!(
+        "{} ",
+        Local::now().format(DATETIME_PRINT_FORMAT).to_string()
+    );
 }
 
-pub fn set_verbose(v:bool) {
+pub fn set_verbose(v: bool) {
     unsafe {
         IS_VERBOSE = v;
     }
 }
 
 pub fn is_verbose() -> bool {
-    unsafe {
-        IS_VERBOSE
-    }
+    unsafe { IS_VERBOSE }
 }
 
 #[macro_export]
 macro_rules! vprintln {
     () => (if crate::print::is_verbose() { std::print!("\n"); });
     ($($arg:tt)*) => {
-        if crate::print::is_verbose() { 
+        if crate::print::is_verbose() {
             crate::print::print_datetime();
             print!("{}:{} ", file!(), line!());
             println!($($arg)*);
@@ -43,7 +46,7 @@ macro_rules! vprintln {
 macro_rules! veprintln {
     () => (if crate::print::is_verbose() { std::eprint!("\n"); });
     ($($arg:tt)*) => {
-        if crate::print::is_verbose() { 
+        if crate::print::is_verbose() {
             crate::print::eprint_datetime();
             eprint!("{}:{} ", file!(), line!());
             eprintln!($($arg)*);
@@ -79,8 +82,8 @@ macro_rules! veprintln {
 //     if formatted.len() > width as usize - 8 {
 //         formatted = String::from(&formatted[0..(width as usize - 8)]);
 //     }
-    
-//     println!("{}[ {} ]", 
+
+//     println!("{}[ {} ]",
 //                     formatted,
 //                     match status {
 //                         CompleteStatus::OK => "DONE".green(),
@@ -89,8 +92,6 @@ macro_rules! veprintln {
 //                     }
 //     );
 // }
-
-
 
 pub fn print_experimental() {
     println!("{} - Results may vary, bugs will be present, and not all functionality has been implemented", "Experimental Code!".red())

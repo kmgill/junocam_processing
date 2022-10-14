@@ -3,12 +3,8 @@ mod subs;
 use subs::runnable::RunnableSubcommand;
 use subs::*;
 
-
 extern crate wild;
-use clap::{
-    Parser, 
-    Subcommand
-};
+use clap::{Parser, Subcommand};
 
 #[derive(Parser)]
 #[clap(name = "juno")]
@@ -30,11 +26,8 @@ enum Juno {
     Hpc(hpc::Hpc),
     Weights(weights::Weights),
     Process(process::Process),
-    CenterOfMass(centerofmass::CenterOfMass)
+    CenterOfMass(centerofmass::CenterOfMass),
 }
-
-
-
 
 fn main() {
     let args = Cli::parse_from(wild::args());
@@ -46,25 +39,25 @@ fn main() {
     match args.command {
         Juno::TripletCount(args) => {
             args.run();
-        },
+        }
         Juno::Infill(args) => {
             args.run();
-        },
+        }
         Juno::Decompand(args) => {
             args.run();
-        },
+        }
         Juno::Calibrate(args) => {
             args.run();
-        },
+        }
         Juno::Hpc(args) => {
             args.run();
-        },
+        }
         Juno::Weights(args) => {
             args.run();
-        },
+        }
         Juno::Process(args) => {
             args.run();
-        },
+        }
         Juno::CenterOfMass(args) => {
             args.run();
         }
