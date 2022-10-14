@@ -78,36 +78,21 @@ impl RunnableSubcommand for Process {
             process::exit(1);
         }
 
-        let red_weight = match self.red_weight {
-            Some(r) => r,
-            None => juno_config.defaults.red_weight,
-        };
+        let red_weight = self.red_weight.unwrap_or(juno_config.defaults.red_weight);
+        let green_weight = self
+            .green_weight
+            .unwrap_or(juno_config.defaults.green_weight);
+        let blue_weight = self.blue_weight.unwrap_or(juno_config.defaults.blue_weight);
 
-        let green_weight = match self.green_weight {
-            Some(g) => g,
-            None => juno_config.defaults.green_weight,
-        };
-
-        let blue_weight = match self.blue_weight {
-            Some(b) => b,
-            None => juno_config.defaults.blue_weight,
-        };
-
-        let output_width = match self.width {
-            Some(w) => w,
-            None => 1024,
-        };
+        let output_width = self.width.unwrap_or(1024);
         vprintln!("Output image width: {}", output_width);
 
-        let output_height = match self.height {
-            Some(h) => h,
-            None => 1024,
-        };
+        let output_height = self.height.unwrap_or(1024);
         vprintln!("Output image height: {}", output_height);
 
         let camera_lens = match &self.lens {
             Some(l) => {
-                if let Some(lens) = SupportedLens::from(&l.as_str()) {
+                if let Some(lens) = SupportedLens::from(l.as_str()) {
                     lens
                 } else {
                     eprintln!("Error: Invalid camera lens requested: {}", l);
@@ -147,16 +132,16 @@ impl RunnableSubcommand for Process {
             input: self.input.clone(),
             metadata: self.metadata.clone(),
             output: Some(self.output.clone()),
-            red_weight: red_weight,
-            green_weight: green_weight,
-            blue_weight: blue_weight,
+            red_weight,
+            green_weight,
+            blue_weight,
             predicted: self.predicted,
             width: output_width,
             height: output_height,
-            fov: fov,
-            pitch: pitch,
-            yaw: yaw,
-            roll: roll,
+            fov,
+            pitch,
+            yaw,
+            roll,
             lens: camera_lens,
         }) {
             Ok(_) => {

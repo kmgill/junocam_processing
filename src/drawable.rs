@@ -12,7 +12,7 @@ pub struct Point {
 impl Point {
     /// Simple creation for a Point.
     pub fn create(x: f64, y: f64, v: f64) -> Self {
-        Point { x: x, y: y, v: v }
+        Point { x, y, v }
     }
 }
 
@@ -26,7 +26,7 @@ pub struct Triangle {
 impl Triangle {
     /// Determine if a two dimensional point is contained within the  area bounded by the triangle
     pub fn contains(&self, x: f64, y: f64) -> bool {
-        let p = Point { x: x, y: y, v: 0.0 };
+        let p = Point { x, y, v: 0.0 };
         let b0 = Triangle::sign(&p, &self.p0, &self.p1) <= 0.0;
         let b1 = Triangle::sign(&p, &self.p1, &self.p2) <= 0.0;
         let b2 = Triangle::sign(&p, &self.p2, &self.p0) <= 0.0;
@@ -73,8 +73,7 @@ impl Triangle {
             + (self.p0.x * self.p1.y - self.p1.x * self.p0.y) * c2)
             / det;
 
-        let v = a * x + b * y + c;
-        v
+        a * x + b * y + c
     }
 }
 

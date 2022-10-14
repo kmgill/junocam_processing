@@ -21,7 +21,7 @@ impl Strip {
     ) -> error::Result<Strip> {
         Ok(Strip {
             buffer: buffer.clone(),
-            camera: camera,
+            camera,
             ilt_applied: false,
             darknoise_applied: false,
             infill_applied: false,

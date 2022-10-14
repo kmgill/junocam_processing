@@ -52,7 +52,7 @@ pub fn furnish_base() {
     match config::load_configuration() {
         Ok(c) => {
             for k in c.spice.kernels {
-                furnish(&k.as_str()).expect("Failed to load spice kernel");
+                furnish(k.as_str()).expect("Failed to load spice kernel");
             }
         }
         Err(why) => {
@@ -80,7 +80,7 @@ fn kernel_name_nth_part(ck_file: &String, n: usize) -> Option<String> {
     let path = Path::new(&ck_file);
     if let Some(s) = Path::new(path.file_name().unwrap()).file_stem() {
         let filename = s.to_str().unwrap().to_string();
-        let mut split = filename.split("_");
+        let mut split = filename.split('_');
         Some(split.nth(n).unwrap().to_string())
     } else {
         None
@@ -124,8 +124,8 @@ pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> error::Re
     }
 }
 
-pub fn string_to_et(s: &String) -> f64 {
-    spice::str2et(&s.as_str())
+pub fn string_to_et(s: &str) -> f64 {
+    spice::str2et(s)
 }
 
 trait MatrixFrom3x3 {

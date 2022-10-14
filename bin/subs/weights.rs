@@ -35,20 +35,9 @@ impl RunnableSubcommand for Weights {
         vprintln!("Loading image file from {}", self.input);
         let mut raw_image = rawimage::RawImage::new_from_image(&self.input).unwrap();
 
-        let red_weight = match self.red {
-            Some(r) => r,
-            None => 1.0,
-        };
-
-        let green_weight = match self.green {
-            Some(g) => g,
-            None => 1.0,
-        };
-
-        let blue_weight = match self.blue {
-            Some(b) => b,
-            None => 1.0,
-        };
+        let red_weight = self.red.unwrap_or(1.0);
+        let green_weight = self.green.unwrap_or(1.0);
+        let blue_weight = self.blue.unwrap_or(1.0);
 
         vprintln!("Applying weights...");
         raw_image

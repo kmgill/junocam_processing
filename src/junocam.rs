@@ -109,8 +109,8 @@ impl FrameletParameters {
 
 pub static JUNO_JUNOCAM_METHANE: FrameletParameters = FrameletParameters {
     id: -61504,
-    k1: -5.9624209455667325e-08,
-    k2: 2.7381910042256151e-14,
+    k1: -5.962_420_945_566_733e-8,
+    k2: 2.738_191_004_225_615e-14,
     cx: 814.21,
     cy: 315.48,
     focal_length: 10.95637,
@@ -119,8 +119,8 @@ pub static JUNO_JUNOCAM_METHANE: FrameletParameters = FrameletParameters {
 
 pub static JUNO_JUNOCAM_BLUE: FrameletParameters = FrameletParameters {
     id: -61501,
-    k1: -5.9624209455667325e-08,
-    k2: 2.7381910042256151e-14,
+    k1: -5.962_420_945_566_733e-8,
+    k2: 2.738_191_004_225_615e-14,
     cx: 814.21,
     cy: 158.48,
     focal_length: 10.95637,
@@ -129,8 +129,8 @@ pub static JUNO_JUNOCAM_BLUE: FrameletParameters = FrameletParameters {
 
 pub static JUNO_JUNOCAM: FrameletParameters = FrameletParameters {
     id: -61500,
-    k1: -5.9624209455667325e-08,
-    k2: 2.7381910042256151e-14,
+    k1: -5.962_420_945_566_733e-8,
+    k2: 2.738_191_004_225_615e-14,
     cx: 814.21,
     cy: 78.48,
     focal_length: 10.95637,
@@ -139,8 +139,8 @@ pub static JUNO_JUNOCAM: FrameletParameters = FrameletParameters {
 
 pub static JUNO_JUNOCAM_GREEN: FrameletParameters = FrameletParameters {
     id: -61502,
-    k1: -5.9624209455667325e-08,
-    k2: 2.7381910042256151e-14,
+    k1: -5.962_420_945_566_733e-8,
+    k2: 2.738_191_004_225_615e-14,
     cx: 814.21,
     cy: 3.48,
     focal_length: 10.95637,
@@ -149,8 +149,8 @@ pub static JUNO_JUNOCAM_GREEN: FrameletParameters = FrameletParameters {
 
 pub static JUNO_JUNOCAM_RED: FrameletParameters = FrameletParameters {
     id: -61503,
-    k1: -5.9624209455667325e-08,
-    k2: 2.7381910042256151e-14,
+    k1: -5.962_420_945_566_733e-8,
+    k2: 2.738_191_004_225_615e-14,
     cx: 814.21,
     cy: -151.52,
     focal_length: 10.95637,

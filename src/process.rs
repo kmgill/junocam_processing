@@ -239,10 +239,10 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
                         4 => &jc::JUNO_JUNOCAM_METHANE,
                         _ => panic!("Invalid filter band"),
                     };
-                    let tl = xy_to_map_point(x, y, &framelet, &spc_mtx, &lens, strip, &q);
-                    let bl = xy_to_map_point(x, y + 1, &framelet, &spc_mtx, &lens, strip, &q);
-                    let br = xy_to_map_point(x + 1, y + 1, &framelet, &spc_mtx, &lens, strip, &q);
-                    let tr = xy_to_map_point(x + 1, y, &framelet, &spc_mtx, &lens, strip, &q);
+                    let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q);
+                    let bl = xy_to_map_point(x, y + 1, framelet, &spc_mtx, &lens, strip, &q);
+                    let br = xy_to_map_point(x + 1, y + 1, framelet, &spc_mtx, &lens, strip, &q);
+                    let tr = xy_to_map_point(x + 1, y, framelet, &spc_mtx, &lens, strip, &q);
 
                     cyl_map.paint_square(&tl, &bl, &br, &tr, true, 2 - s);
                 }

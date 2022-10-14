@@ -109,14 +109,14 @@ impl RawImage {
             triplet
                 .paste_into(&mut assembled_buffer, y)
                 .expect("Failed to paste into assembled buffer");
-            y = y + constants::STRIP_HEIGHT * 3;
+            y += constants::STRIP_HEIGHT * 3;
         }
 
         assembled_buffer
     }
 
     fn split_triplets(&mut self) {
-        if self.triplets.len() > 0 {
+        if !self.triplets.is_empty() {
             panic!("Triplets already split out");
         }
         let triplet_count = self.rawdata.height / (constants::STRIP_HEIGHT * 3);

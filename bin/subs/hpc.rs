@@ -29,15 +29,8 @@ impl RunnableSubcommand for Hpc {
             process::exit(1);
         }
 
-        let window = match self.window {
-            Some(w) => w,
-            None => 5,
-        };
-
-        let threshold = match self.threshold {
-            Some(t) => t,
-            None => 2.0,
-        };
+        let window = self.window.unwrap_or(5);
+        let threshold = self.threshold.unwrap_or(2.0);
 
         vprintln!("Loading image file from {}", self.input);
         let mut raw_image = rawimage::RawImage::new_from_image(&self.input).unwrap();

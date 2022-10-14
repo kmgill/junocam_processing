@@ -7,17 +7,11 @@ use colored::*;
 const DATETIME_PRINT_FORMAT: &str = "%Y-%m-%d %H:%M:%S%.3f";
 
 pub fn print_datetime() {
-    print!(
-        "{} ",
-        Local::now().format(DATETIME_PRINT_FORMAT).to_string()
-    );
+    print!("{} ", Local::now().format(DATETIME_PRINT_FORMAT));
 }
 
 pub fn eprint_datetime() {
-    eprint!(
-        "{} ",
-        Local::now().format(DATETIME_PRINT_FORMAT).to_string()
-    );
+    eprint!("{} ", Local::now().format(DATETIME_PRINT_FORMAT));
 }
 
 pub fn set_verbose(v: bool) {
@@ -32,10 +26,10 @@ pub fn is_verbose() -> bool {
 
 #[macro_export]
 macro_rules! vprintln {
-    () => (if crate::print::is_verbose() { std::print!("\n"); });
+    () => (if $crate::print::is_verbose() { std::print!("\n"); });
     ($($arg:tt)*) => {
-        if crate::print::is_verbose() {
-            crate::print::print_datetime();
+        if $crate::print::is_verbose() {
+            $crate::print::print_datetime();
             print!("{}:{} ", file!(), line!());
             println!($($arg)*);
         }
@@ -44,10 +38,10 @@ macro_rules! vprintln {
 
 #[macro_export]
 macro_rules! veprintln {
-    () => (if crate::print::is_verbose() { std::eprint!("\n"); });
+    () => (if $crate::print::is_verbose() { std::eprint!("\n"); });
     ($($arg:tt)*) => {
-        if crate::print::is_verbose() {
-            crate::print::eprint_datetime();
+        if $crate::print::is_verbose() {
+            $crate::print::eprint_datetime();
             eprint!("{}:{} ", file!(), line!());
             eprintln!($($arg)*);
         }
