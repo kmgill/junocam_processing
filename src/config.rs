@@ -46,6 +46,12 @@ pub struct Spice {
     pub kernels: Vec<String>,
     pub ck_rec_pattern: String,
     pub ck_pre_pattern: String,
+    pub spk_rec_pattern: String,
+    pub spk_pre_pattern: String,
+    pub ck_nth_start_date: usize,
+    pub ck_nth_end_date: usize,
+    pub spk_nth_start_date: usize,
+    pub spk_nth_end_date: usize,
 }
 
 #[derive(Deserialize, Clone)]

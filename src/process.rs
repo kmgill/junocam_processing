@@ -6,6 +6,7 @@ use crate::{
 };
 
 use sciimg::{matrix::Matrix, prelude::*, quaternion::Quaternion, vector::Vector};
+use spice;
 
 pub enum SupportedLens {
     Cylindrical,
@@ -154,16 +155,47 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
     vprintln!("Spice-formatted start time: {}", start_time);
     let start_time_et = jcspice::string_to_et(&start_time) + start_time_correction;
 
-    let kernel_search_pattern = if context.predicted {
-        juno_config.spice.ck_pre_pattern
+    let kernel_ck_search_pattern = if context.predicted {
+        juno_config.spice.ck_rec_pattern
     } else {
         juno_config.spice.ck_rec_pattern
     };
 
+    let kernel_spk_search_pattern = if context.predicted {
+        juno_config.spice.spk_pre_pattern
+    } else {
+        juno_config.spice.spk_rec_pattern
+    };
+
     vprintln!("Finding spacecraft pointing kernel...");
-    match jcspice::find_kernel_with_date(&kernel_search_pattern, start_time_et) {
+    match jcspice::find_kernel_with_date(
+        &kernel_ck_search_pattern,
+        start_time_et,
+        juno_config.spice.ck_nth_start_date,
+        juno_config.spice.ck_nth_end_date,
+    ) {
         Ok(kernel_path) => {
             vprintln!("Found CK kernel with matching time range: {}", kernel_path);
+            // Note: I really don't like embedding match statements within match statements.
+            match jcspice::furnish(&kernel_path) {
+                Ok(_) => {}
+                Err(why) => return Err(why),
+            };
+        }
+        Err(why) => {
+            eprintln!("Error: {:?}", why);
+            return Err(why);
+        }
+    }
+
+    match jcspice::find_kernel_with_date(
+        &kernel_spk_search_pattern,
+        start_time_et,
+        juno_config.spice.spk_nth_start_date,
+        juno_config.spice.spk_nth_end_date,
+    ) {
+        Ok(kernel_path) => {
+            vprintln!("Found SPK kernel with matching time range: {}", kernel_path);
             // Note: I really don't like embedding match statements within match statements.
             match jcspice::furnish(&kernel_path) {
                 Ok(_) => {}
@@ -218,8 +250,13 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
     //let lens = CylindricalLens::new(cyl_map.width, cyl_map.height, 90.0, -90.0, 0.0, 360.0);
     //let lens = FisheyeEquisolidLens::new(cyl_map.width, cyl_map.height, 13.0, fov);
 
+    let (shape, frame, bsight, n, bounds) = spice::getfov(-61502, 4, 32, 32);
+
+    let (num_radii, radii) = spice::bodvrd("JUPITER", "RADII", 64);
+
     vprintln!("Processing triplets...");
-    for t in 0..raw_image.get_triplet_count() {
+    for t in 15..16 {
+        //0..raw_image.get_triplet_count() {
         vprintln!("Processing triplet #{}", (t + 1));
         let triplet = &raw_image.triplets[t as usize];
 
@@ -239,12 +276,50 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
                         4 => &jc::JUNO_JUNOCAM_METHANE,
                         _ => panic!("Invalid filter band"),
                     };
-                    let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q);
-                    let bl = xy_to_map_point(x, y + 1, framelet, &spc_mtx, &lens, strip, &q);
-                    let br = xy_to_map_point(x + 1, y + 1, framelet, &spc_mtx, &lens, strip, &q);
-                    let tr = xy_to_map_point(x + 1, y, framelet, &spc_mtx, &lens, strip, &q);
 
-                    cyl_map.paint_square(&tl, &bl, &br, &tr, true, 2 - s);
+                    /////////////////////////////////////////
+                    // Note: This is a complete mess of nonsense. Please don't judge ;-)
+                    /////////////////////////////////////////
+                    let bndvec = framelet.xy_to_vector(x as f64, y as f64);
+
+                    let (spoint, etemit, srfvec, found) = spice::sincpt(
+                        "Ellipsoid",
+                        "JUPITER",
+                        image_time_et,
+                        "IAU_JUPITER",
+                        "CN+S",
+                        "JUNO",
+                        &frame,
+                        [bndvec.x, bndvec.y, bndvec.z],
+                    );
+                    let pmgsmr = Vector::from_vec(&spoint)
+                        .unwrap()
+                        .subtract(&Vector::from_vec(&srfvec).unwrap());
+
+                    let u = spc_mtx.multiply_vector(&bndvec);
+                    let (spoint, found) = spice::surfpt(
+                        pmgsmr.as_slice(),
+                        u.as_slice(),
+                        radii[0],
+                        radii[1],
+                        radii[2],
+                    );
+                    //spoint = spice.surfpt(pmgsmr, bndvec, self.radii[0], self.radii[1], self.radii[2])
+
+                    //if found {
+                    let mut pt = lens.vector_to_point(&Vector::from_vec(&spoint).unwrap());
+                    let tl_v = strip.buffer.get(x, y).unwrap() as f64;
+                    pt.v = tl_v;
+
+                    cyl_map.paint_square(&pt, &pt, &pt, &pt, true, 2 - s);
+                    //}
+
+                    // let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q);
+                    // let bl = xy_to_map_point(x, y + 1, framelet, &spc_mtx, &lens, strip, &q);
+                    // let br = xy_to_map_point(x + 1, y + 1, framelet, &spc_mtx, &lens, strip, &q);
+                    // let tr = xy_to_map_point(x + 1, y, framelet, &spc_mtx, &lens, strip, &q);
+
+                    // cyl_map.paint_square(&tl, &bl, &br, &tr, true, 2 - s);
                 }
             }
         }
@@ -285,5 +360,15 @@ impl NormSeperateChannel for RgbImage {
             let band = self.get_band(b);
             self.set_band(&band.normalize(0.0, 65535.0).unwrap(), b);
         }
+    }
+}
+
+trait VectorAsSlice {
+    fn as_slice(&self) -> [f64; 3];
+}
+
+impl VectorAsSlice for Vector {
+    fn as_slice(&self) -> [f64; 3] {
+        [self.x, self.y, self.z]
     }
 }

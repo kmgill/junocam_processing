@@ -87,9 +87,9 @@ fn kernel_name_nth_part(ck_file: &String, n: usize) -> Option<String> {
     }
 }
 
-fn get_kernel_range_et(ck_file: &String) -> Option<(f64, f64)> {
-    let start_date_s = kernel_name_nth_part(ck_file, 3).unwrap();
-    let end_date_s = kernel_name_nth_part(ck_file, 4).unwrap();
+fn get_kernel_range_et(ck_file: &String, start_nth: usize, end_nth: usize) -> Option<(f64, f64)> {
+    let start_date_s = kernel_name_nth_part(ck_file, start_nth).unwrap();
+    let end_date_s = kernel_name_nth_part(ck_file, end_nth).unwrap();
 
     let kernel_start_et = kernel_name_date_to_et(&start_date_s).unwrap();
     let kernel_end_et = kernel_name_date_to_et(&end_date_s).unwrap();
@@ -97,7 +97,12 @@ fn get_kernel_range_et(ck_file: &String) -> Option<(f64, f64)> {
     Some((kernel_start_et, kernel_end_et))
 }
 
-pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> error::Result<String> {
+pub fn find_kernel_with_date(
+    search_pattern: &String,
+    time_et: f64,
+    start_nth: usize,
+    end_nth: usize,
+) -> error::Result<String> {
     match option_env!("JUNOBASE") {
         Some(v) => {
             let abs_search_pattern = format!("{}/{}", v, search_pattern);
@@ -106,9 +111,11 @@ pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> error::Re
             for entry in glob(&abs_search_pattern).expect("Failed to read glob pattern") {
                 match entry {
                     Ok(path) => {
-                        if let Some(range) =
-                            get_kernel_range_et(&path.to_str().unwrap().to_string())
-                        {
+                        if let Some(range) = get_kernel_range_et(
+                            &path.to_str().unwrap().to_string(),
+                            start_nth,
+                            end_nth,
+                        ) {
                             if range.0 <= time_et && time_et <= range.1 {
                                 return Ok(path.to_str().unwrap().to_string());
                             }
