@@ -67,6 +67,9 @@ pub struct Process {
 
     #[clap(long, short, help = "Camera lens (cylindrical, fisheye)")]
     lens: Option<String>,
+
+    #[clap(long, short = 'F', help = "Fast, skip every other line/sample")]
+    fast: bool,
 }
 
 impl RunnableSubcommand for Process {
@@ -143,6 +146,7 @@ impl RunnableSubcommand for Process {
             yaw,
             roll,
             lens: camera_lens,
+            fast: self.fast,
         }) {
             Ok(_) => {
                 vprintln!("Done")

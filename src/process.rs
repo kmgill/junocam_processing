@@ -12,6 +12,8 @@ pub enum SupportedLens {
     Fisheye,
 }
 
+use colored::{self, Colorize};
+
 impl SupportedLens {
     pub fn from(s: &str) -> Option<SupportedLens> {
         match s.to_lowercase().as_str() {
@@ -59,6 +61,7 @@ pub struct ProcessOptions {
     pub yaw: f64,
     pub roll: f64,
     pub lens: SupportedLens,
+    pub fast: bool,
 }
 
 pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
@@ -83,7 +86,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
         Err(why) => return Err(why),
     };
 
-    if juno_config.defaults.apply_calibration {
+    if !context.fast && juno_config.defaults.apply_calibration {
         vprintln!("Applying framelet calibration...");
         match raw_image.apply_darknoise() {
             Ok(_) => {}
@@ -91,7 +94,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
         };
     }
 
-    if juno_config.defaults.apply_infill_correction {
+    if !context.fast && juno_config.defaults.apply_infill_correction {
         vprintln!("Applying blemish infill correction...");
         match raw_image.apply_infill_correction() {
             Ok(_) => {}
@@ -99,7 +102,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
         };
     }
 
-    if juno_config.defaults.apply_hot_pixel_correction {
+    if !context.fast && juno_config.defaults.apply_hot_pixel_correction {
         vprintln!("Applying hot pixel detection and correction...");
         vprintln!(
             "Hot Pixel Correction Window Size: {}",
@@ -118,7 +121,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
         };
     }
 
-    if juno_config.defaults.apply_weights {
+    if !context.fast && juno_config.defaults.apply_weights {
         vprintln!(
             "Applying channel weight multiples ({}, {}, {} X R, G, B)...",
             context.red_weight,
@@ -188,6 +191,15 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
     let r = Quaternion::from_pitch_roll_yaw(180.0_f64.to_radians(), 0.0, 0.0);
     let p = Quaternion::from_pitch_roll_yaw(0.0, 90.0_f64.to_radians(), 0.0);
 
+    let line_sample_increment: usize = if context.fast {
+        vprintln!(
+            "{}: Fast option enabled. Skipping every other line & sample from source data",
+            "Warning:".bright_yellow()
+        );
+        2
+    } else {
+        1
+    };
     // We flip them to handle Spice's Z-up to our Y-up coordinates
     let user_roll = Quaternion::from_pitch_roll_yaw(context.roll, 0.0, 0.0);
     let user_yaw = Quaternion::from_pitch_roll_yaw(0.0, 0.0, context.pitch);
@@ -227,8 +239,8 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
             start_time_et + (t as f64 * (interframe_delay + interframe_delay_correction));
         let spc_mtx = jcspice::pos_transform_matrix("JUNO_JUNOCAM", "J2000", image_time_et);
 
-        for y in 2..(128 - 2) {
-            for x in 0..(1648 - 1) {
+        for y in (2..(128 - line_sample_increment - 1)).step_by(line_sample_increment) {
+            for x in (0..(1648 - line_sample_increment)).step_by(line_sample_increment) {
                 for s in 0..3 {
                     let strip = &triplet.channels[s];
 
@@ -240,9 +252,33 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
                         _ => panic!("Invalid filter band"),
                     };
                     let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q);
-                    let bl = xy_to_map_point(x, y + 1, framelet, &spc_mtx, &lens, strip, &q);
-                    let br = xy_to_map_point(x + 1, y + 1, framelet, &spc_mtx, &lens, strip, &q);
-                    let tr = xy_to_map_point(x + 1, y, framelet, &spc_mtx, &lens, strip, &q);
+                    let bl = xy_to_map_point(
+                        x,
+                        y + line_sample_increment,
+                        framelet,
+                        &spc_mtx,
+                        &lens,
+                        strip,
+                        &q,
+                    );
+                    let br = xy_to_map_point(
+                        x + line_sample_increment,
+                        y + line_sample_increment,
+                        framelet,
+                        &spc_mtx,
+                        &lens,
+                        strip,
+                        &q,
+                    );
+                    let tr = xy_to_map_point(
+                        x + line_sample_increment,
+                        y,
+                        framelet,
+                        &spc_mtx,
+                        &lens,
+                        strip,
+                        &q,
+                    );
 
                     cyl_map.paint_square(&tl, &bl, &br, &tr, true, 2 - s);
                 }
