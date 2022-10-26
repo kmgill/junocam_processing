@@ -1,5 +1,6 @@
 use crate::drawable::Point;
 use crate::lens::lens::Lens;
+use sciimg::min;
 use sciimg::vector::Vector;
 
 pub struct FisheyeEquisolidLens {
@@ -33,9 +34,22 @@ impl Lens for FisheyeEquisolidLens {
         let u = r * phi.cos() + 0.5;
         let v = r * phi.sin() + 0.5;
 
+        let field_width = min!(self.image_width, self.image_height);
+        let x_adjust = if self.image_width > self.image_height {
+            (self.image_width - self.image_height) / 2
+        } else {
+            0
+        };
+
+        let y_adjust = if self.image_height > self.image_width {
+            (self.image_height - self.image_width) / 2
+        } else {
+            0
+        };
+
         Point {
-            x: u * (self.image_width as f64),
-            y: (1.0 - v) * (self.image_height as f64),
+            x: u * (field_width as f64) + x_adjust as f64,
+            y: (1.0 - v) * (field_width as f64) + y_adjust as f64,
             v: 0.0,
         }
     }
