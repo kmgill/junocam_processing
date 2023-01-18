@@ -109,7 +109,7 @@ pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> error::Re
                         if let Some(range) =
                             get_kernel_range_et(&path.to_str().unwrap().to_string())
                         {
-                            if range.0 <= time_et && time_et <= range.1 {
+                            if range.0 <= time_et && time_et <= (range.1 + 86400.0) {
                                 return Ok(path.to_str().unwrap().to_string());
                             }
                         }

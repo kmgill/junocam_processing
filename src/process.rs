@@ -62,6 +62,7 @@ pub struct ProcessOptions {
     pub roll: f64,
     pub lens: SupportedLens,
     pub fast: bool,
+    pub decorrelated_color_stretch: bool,
 }
 
 pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
@@ -289,11 +290,11 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
     vprintln!("Data range, pre-normalization:");
     vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());
 
-    if juno_config.defaults.correlated_color_balancing {
+    if !context.decorrelated_color_stretch || juno_config.defaults.correlated_color_balancing {
         vprintln!("Applying color channel correlated value stretching/normalization");
         cyl_map.normalize_to_16bit();
     } else {
-        vprintln!("Applying color channel isolated value stretching/normalization");
+        vprintln!("Applying color channel decorrelated value stretching/normalization");
         cyl_map.normalize_to_16bit_seperate_channels();
     }
 

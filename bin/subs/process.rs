@@ -70,6 +70,9 @@ pub struct Process {
 
     #[clap(long, short = 'F', help = "Fast, skip every other line/sample")]
     fast: bool,
+
+    #[clap(long, short = 'd', help = "Perform decorrelated color stretch")]
+    decorrelated_color_stretch: bool,
 }
 
 impl RunnableSubcommand for Process {
@@ -147,6 +150,7 @@ impl RunnableSubcommand for Process {
             roll,
             lens: camera_lens,
             fast: self.fast,
+            decorrelated_color_stretch: self.decorrelated_color_stretch,
         }) {
             Ok(_) => {
                 vprintln!("Done")
