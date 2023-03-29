@@ -5,21 +5,21 @@ use junocam::{
     process::{process_image, ProcessOptions, SupportedLens},
     vprintln,
 };
-
+// use rayon::prelude::*;
+use sciimg::util;
 use std::process;
 
 #[derive(clap::Args)]
 #[clap(author, version, about = "Process RGB JunoCam image", long_about = None)]
 pub struct Process {
-    #[clap(long, short, help = "Input image")]
-    input: String,
+    #[clap(long, short, help = "Input images", multiple_values = true)]
+    inputs: Vec<String>,
 
-    #[clap(long, short, help = "Input metadata json")]
-    metadata: String,
+    #[clap(long, short, help = "Input metadata json", multiple_values = true)]
+    metadata: Vec<String>,
 
-    #[clap(long, short, help = "Output image")]
-    output: String,
-
+    // #[clap(long, short, help = "Output images", multiple_values = true)]
+    // outputs: Vec<String>,
     #[clap(long, short = 'R', help = "Red weight")]
     red_weight: Option<f32>,
 
@@ -79,11 +79,6 @@ impl RunnableSubcommand for Process {
     fn run(&self) {
         let juno_config = config::load_configuration().expect("Failed to load config file");
 
-        if !path::file_exists(&self.input) {
-            eprintln!("ERROR: Input file not found!");
-            process::exit(1);
-        }
-
         let red_weight = self.red_weight.unwrap_or(juno_config.defaults.red_weight);
         let green_weight = self
             .green_weight
@@ -134,30 +129,49 @@ impl RunnableSubcommand for Process {
         };
         vprintln!("Fisheye camera roll: {}", roll.to_degrees());
 
-        match process_image(&ProcessOptions {
-            input: self.input.clone(),
-            metadata: self.metadata.clone(),
-            output: Some(self.output.clone()),
-            red_weight,
-            green_weight,
-            blue_weight,
-            predicted: self.predicted,
-            width: output_width,
-            height: output_height,
-            fov,
-            pitch,
-            yaw,
-            roll,
-            lens: camera_lens,
-            fast: self.fast,
-            decorrelated_color_stretch: self.decorrelated_color_stretch,
-        }) {
-            Ok(_) => {
-                vprintln!("Done")
-            }
-            Err(why) => {
-                eprintln!("Error processing image: {}", why)
-            }
+        if self.inputs.len() != self.metadata.len() {
+            eprintln!("Error: Inputs do not match outputs.");
+            process::exit(1);
         }
+
+        self.inputs
+            .iter()
+            .zip(self.metadata.iter())
+            .for_each(|(file_path, metadata)| {
+                vprintln!("Image: {} -- Metadata: {}", file_path, metadata);
+                if !path::file_exists(file_path) {
+                    eprintln!("ERROR: Input file not found: {}", file_path);
+                    process::exit(1);
+                }
+                vprintln!("Loading image file from {}", file_path);
+
+                let output_filename = util::replace_image_extension(file_path, "-processed.png");
+
+                match process_image(&ProcessOptions {
+                    input: file_path.to_string(),
+                    metadata: metadata.to_string(),
+                    output: Some(output_filename),
+                    red_weight,
+                    green_weight,
+                    blue_weight,
+                    predicted: self.predicted,
+                    width: output_width,
+                    height: output_height,
+                    fov,
+                    pitch,
+                    yaw,
+                    roll,
+                    lens: camera_lens,
+                    fast: self.fast,
+                    decorrelated_color_stretch: self.decorrelated_color_stretch,
+                }) {
+                    Ok(_) => {
+                        vprintln!("Done")
+                    }
+                    Err(why) => {
+                        eprintln!("Error processing image: {}", why)
+                    }
+                }
+            });
     }
 }

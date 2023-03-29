@@ -1,10 +1,10 @@
 use crate::subs::runnable::RunnableSubcommand;
 
 use junocam::path;
+use junocam::vprintln;
+use rayon::prelude::*;
 use sciimg::prelude::*;
 use sciimg::util;
-
-use junocam::vprintln;
 
 use std::process;
 
@@ -28,7 +28,7 @@ impl RunnableSubcommand for CenterOfMass {
     fn run(&self) {
         let threshold = self.threshold.unwrap_or(100.0);
 
-        for file_path in &self.inputs {
+        self.inputs.par_iter().for_each(|file_path| {
             if !path::file_exists(file_path) {
                 eprintln!("ERROR: Input file not found: {}", file_path);
                 process::exit(1);
@@ -42,6 +42,6 @@ impl RunnableSubcommand for CenterOfMass {
 
             let output_filename = util::replace_image_extension(file_path, "-com.png");
             img.save(&output_filename);
-        }
+        });
     }
 }
