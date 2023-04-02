@@ -7,6 +7,7 @@ use crate::{
 
 use sciimg::{matrix::Matrix, prelude::*, quaternion::Quaternion, vector::Vector};
 
+#[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum SupportedLens {
     Cylindrical,
     Fisheye,
