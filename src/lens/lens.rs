@@ -1,4 +1,4 @@
-use crate::drawable::Point;
+use sciimg::drawable::Point;
 use sciimg::vector::Vector;
 
 pub trait Lens {

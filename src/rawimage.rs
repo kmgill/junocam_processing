@@ -1,4 +1,4 @@
-use crate::{constants, decompanding as ilttables, enums, path, triplet};
+use crate::{constants, decompanding as ilttables, enums, triplet};
 
 use sciimg::prelude::*;
 use sciimg::*;

@@ -1,6 +1,5 @@
 use crate::subs::runnable::RunnableSubcommand;
 
-use junocam::path;
 use junocam::vprintln;
 use rayon::prelude::*;
 use sciimg::prelude::*;

@@ -1,6 +1,7 @@
-use crate::{constants, metadata, path, rawimage};
+use crate::{constants, metadata, rawimage};
 
 use sciimg::error;
+use sciimg::path;
 
 pub struct RawSet {
     pub image: rawimage::RawImage,

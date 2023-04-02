@@ -1,11 +1,12 @@
 use crate::subs::runnable::RunnableSubcommand;
 
 use junocam::{
-    config, path,
+    config,
     process::{process_image, ProcessOptions, SupportedLens},
     vprintln,
 };
 // use rayon::prelude::*;
+use sciimg::path;
 use sciimg::util;
 use std::process;
 

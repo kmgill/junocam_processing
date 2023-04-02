@@ -1,10 +1,10 @@
 use crate::{
-    config, drawable::Drawable, drawable::Point, jcspice, junocam as jc,
-    junocam::FrameletParameters, lens::cylindrical::CylindricalLens,
-    lens::fisheye::FisheyeEquisolidLens, lens::lens::Lens, metadata, rawimage, strip::Strip,
-    vprintln,
+    config, jcspice, junocam as jc, junocam::FrameletParameters,
+    lens::cylindrical::CylindricalLens, lens::fisheye::FisheyeEquisolidLens, lens::lens::Lens,
+    metadata, rawimage, strip::Strip, vprintln,
 };
 
+use sciimg::drawable::{Drawable, Point};
 use sciimg::{matrix::Matrix, prelude::*, quaternion::Quaternion, vector::Vector};
 
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]

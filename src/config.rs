@@ -1,4 +1,5 @@
-use crate::{path, vprintln};
+use crate::filelocate;
+use crate::vprintln;
 
 use std::fs::File;
 use std::io::Read;
@@ -64,7 +65,7 @@ pub fn load_configuration() -> error::Result<JunoConfig> {
         }
     }
 
-    let config_file_path = path::locate_calibration_file(&String::from("config.toml"));
+    let config_file_path = filelocate::locate_calibration_file(&String::from("config.toml"));
 
     match config_file_path {
         Ok(config_toml) => {

@@ -1,9 +1,9 @@
 use crate::subs::runnable::RunnableSubcommand;
 
-use junocam::{enums, path, rawimage};
+use junocam::{enums, rawimage};
 
 use junocam::vprintln;
-
+use sciimg::path;
 use std::process;
 
 #[derive(clap::Args)]

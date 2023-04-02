@@ -1,5 +1,5 @@
-use crate::drawable::Point;
 use crate::lens::lens::Lens;
+use sciimg::drawable::Point;
 use sciimg::min;
 use sciimg::vector::Vector;
 

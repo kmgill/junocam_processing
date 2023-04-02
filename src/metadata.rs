@@ -1,7 +1,8 @@
-use crate::{constants, enums, path};
+use crate::{constants, enums};
 use json;
 
 use sciimg::error;
+use sciimg::path;
 
 use chrono::prelude::*;
 use std::fs;

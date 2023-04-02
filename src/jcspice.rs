@@ -1,6 +1,6 @@
 use spice;
 
-use crate::{config, path, veprintln, vprintln};
+use crate::{config, filelocate, veprintln, vprintln};
 use sciimg::error;
 use sciimg::matrix::Matrix;
 
@@ -35,7 +35,7 @@ impl Channel {
 }
 
 pub fn furnish(kernel_path: &str) -> error::Result<&str> {
-    match path::locate_calibration_file(&kernel_path.to_string()) {
+    match filelocate::locate_calibration_file(&kernel_path.to_string()) {
         Ok(f) => {
             vprintln!("Loading {}", f);
             spice::furnsh(&f);

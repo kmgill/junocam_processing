@@ -1,4 +1,4 @@
-use crate::{cache, config, constants, enums, path};
+use crate::{cache, config, constants, enums, filelocate};
 
 use sciimg::{inpaint, prelude::*};
 use std::sync::Mutex;
@@ -15,17 +15,19 @@ pub fn load_mask(camera: enums::Camera) -> error::Result<ImageBuffer> {
         enums::Camera::RED => Ok(MASK_CACHE
             .lock()
             .unwrap()
-            .check_red(&path::locate_calibration_file(&c.calibration.inpaint_red).unwrap())
+            .check_red(&filelocate::locate_calibration_file(&c.calibration.inpaint_red).unwrap())
             .unwrap()),
         enums::Camera::GREEN => Ok(MASK_CACHE
             .lock()
             .unwrap()
-            .check_green(&path::locate_calibration_file(&c.calibration.inpaint_green).unwrap())
+            .check_green(
+                &filelocate::locate_calibration_file(&c.calibration.inpaint_green).unwrap(),
+            )
             .unwrap()),
         enums::Camera::BLUE => Ok(MASK_CACHE
             .lock()
             .unwrap()
-            .check_blue(&path::locate_calibration_file(&c.calibration.inpaint_blue).unwrap())
+            .check_blue(&filelocate::locate_calibration_file(&c.calibration.inpaint_blue).unwrap())
             .unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL),
     }
@@ -38,17 +40,17 @@ pub fn load_flat_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
         enums::Camera::RED => Ok(FLAT_CACHE
             .lock()
             .unwrap()
-            .check_red(&path::locate_calibration_file(&c.calibration.flat_red).unwrap())
+            .check_red(&filelocate::locate_calibration_file(&c.calibration.flat_red).unwrap())
             .unwrap()),
         enums::Camera::GREEN => Ok(FLAT_CACHE
             .lock()
             .unwrap()
-            .check_green(&path::locate_calibration_file(&c.calibration.flat_green).unwrap())
+            .check_green(&filelocate::locate_calibration_file(&c.calibration.flat_green).unwrap())
             .unwrap()),
         enums::Camera::BLUE => Ok(FLAT_CACHE
             .lock()
             .unwrap()
-            .check_blue(&path::locate_calibration_file(&c.calibration.flat_blue).unwrap())
+            .check_blue(&filelocate::locate_calibration_file(&c.calibration.flat_blue).unwrap())
             .unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL),
     }
@@ -77,17 +79,17 @@ pub fn load_dark_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
         enums::Camera::RED => Ok(DARK_CACHE
             .lock()
             .unwrap()
-            .check_red(&path::locate_calibration_file(&c.calibration.dark_red).unwrap())
+            .check_red(&filelocate::locate_calibration_file(&c.calibration.dark_red).unwrap())
             .unwrap()),
         enums::Camera::GREEN => Ok(DARK_CACHE
             .lock()
             .unwrap()
-            .check_green(&path::locate_calibration_file(&c.calibration.dark_green).unwrap())
+            .check_green(&filelocate::locate_calibration_file(&c.calibration.dark_green).unwrap())
             .unwrap()),
         enums::Camera::BLUE => Ok(DARK_CACHE
             .lock()
             .unwrap()
-            .check_blue(&path::locate_calibration_file(&c.calibration.dark_blue).unwrap())
+            .check_blue(&filelocate::locate_calibration_file(&c.calibration.dark_blue).unwrap())
             .unwrap()),
         _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL),
     }
