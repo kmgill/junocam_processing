@@ -60,7 +60,7 @@ pub fn load_flat_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
     };
 
     // Loading our grayscale data into a 3 band RgbImage. Will need to modify the sciimg inpaint method to take in imagebuffer
-    let rgb = RgbImage::new_from_buffers_rgb(&flat, &flat, &flat, ImageMode::U16BIT).unwrap();
+    let rgb = Image::new_from_buffers_rgb(&flat, &flat, &flat, ImageMode::U16BIT).unwrap();
 
     let filled = match inpaint::apply_inpaint_to_buffer(&rgb, &mask) {
         Ok(b) => b,
@@ -99,7 +99,7 @@ pub fn load_dark_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
     };
 
     // Loading our grayscale data into a 3 band RgbImage. Will need to modify the sciimg inpaint method to take in imagebuffer
-    let rgb = RgbImage::new_from_buffers_rgb(&dark, &dark, &dark, ImageMode::U16BIT).unwrap();
+    let rgb = Image::new_from_buffers_rgb(&dark, &dark, &dark, ImageMode::U16BIT).unwrap();
 
     let filled = match inpaint::apply_inpaint_to_buffer(&rgb, &mask) {
         Ok(b) => b,

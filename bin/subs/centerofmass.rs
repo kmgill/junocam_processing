@@ -35,7 +35,7 @@ impl RunnableSubcommand for CenterOfMass {
             }
             vprintln!("Loading image file from {}", file_path);
 
-            let mut img = RgbImage::open16(file_path).unwrap();
+            let mut img = Image::open(file_path).unwrap();
 
             let offset = img.calc_center_of_mass_offset(threshold, 0);
             img.shift(offset.h, offset.v);

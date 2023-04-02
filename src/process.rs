@@ -24,6 +24,7 @@ impl SupportedLens {
     }
 }
 
+#[allow(clippy::borrowed_box)]
 fn xy_to_map_point(
     x: usize,
     y: usize,
@@ -65,7 +66,7 @@ pub struct ProcessOptions {
     pub decorrelated_color_stretch: bool,
 }
 
-pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
+pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
     let juno_config = match config::load_configuration() {
         Ok(jc) => jc,
         Err(why) => return Err(why),
@@ -210,7 +211,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<RgbImage> {
         &user_pitch.times(&r.times(&p.times(&Quaternion::from_matrix(&midtime_matrix).invert()))),
     ));
 
-    let mut cyl_map = RgbImage::create(context.width, context.height);
+    let mut cyl_map = Image::create(context.width, context.height);
 
     let lens: Box<dyn Lens> = match context.lens {
         SupportedLens::Cylindrical => Box::new(CylindricalLens::new(
@@ -316,7 +317,7 @@ trait NormSeperateChannel {
     fn normalize_to_16bit_seperate_channels(&mut self);
 }
 
-impl NormSeperateChannel for RgbImage {
+impl NormSeperateChannel for Image {
     fn normalize_to_16bit_seperate_channels(&mut self) {
         for b in 0..self.num_bands() {
             let band = self.get_band(b);

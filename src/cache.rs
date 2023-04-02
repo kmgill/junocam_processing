@@ -1,5 +1,6 @@
 use sciimg::{error, imagebuffer::ImageBuffer};
 
+#[derive(Default)]
 pub struct ImageCache {
     red: Option<ImageBuffer>,
     green: Option<ImageBuffer>,
@@ -7,14 +8,6 @@ pub struct ImageCache {
 }
 
 impl ImageCache {
-    pub fn default() -> ImageCache {
-        ImageCache {
-            red: None,
-            green: None,
-            blue: None,
-        }
-    }
-
     pub fn check_red(&mut self, path: &str) -> error::Result<ImageBuffer> {
         match &self.red {
             None => {

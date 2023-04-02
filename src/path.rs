@@ -60,16 +60,14 @@ pub fn locate_calibration_file(file_path: &String) -> error::Result<String> {
     }
 
     // Allow for a custom data path to be defined during build.
-    match option_env!("JUNODATAROOT") {
-        Some(v) => locations.insert(0, String::from(v)),
-        None => {}
-    };
+    if let Some(v) = option_env!("JUNODATAROOT") {
+        locations.insert(0, String::from(v));
+    }
 
     // Spice, Juno specific
-    match option_env!("JUNOBASE") {
-        Some(v) => locations.insert(0, String::from(v)),
-        None => {}
-    };
+    if let Some(v) = option_env!("JUNOBASE") {
+        locations.insert(0, String::from(v));
+    }
 
     // Add a path based on the location of the running executable
     // Intended for Windows installations

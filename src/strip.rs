@@ -1,8 +1,8 @@
 use crate::{calibration, constants, decompanding as ilttables, enums};
 
 use sciimg::{
-    decompanding, enums::ImageMode, error, hotpixel, imagebuffer::ImageBuffer, inpaint,
-    rgbimage::RgbImage,
+    decompanding, enums::ImageMode, error, hotpixel, image::Image, imagebuffer::ImageBuffer,
+    inpaint,
 };
 
 pub struct Strip {
@@ -76,7 +76,7 @@ impl Strip {
         };
 
         // Loading our grayscale data into a 3 band RgbImage. Will need to modify the sciimg inpaint method to take in imagebuffer
-        let rgb = RgbImage::new_from_buffers_rgb(
+        let rgb = Image::new_from_buffers_rgb(
             &self.buffer,
             &self.buffer,
             &self.buffer,

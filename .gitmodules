@@ -1,0 +1,3 @@
+[submodule "sciimg"]
+	path = sciimg
+	url = git@github.com:kmgill/sciimg.git

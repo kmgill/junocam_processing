@@ -6,6 +6,8 @@ use sciimg::vector::Vector;
 pub struct FisheyeEquisolidLens {
     image_width: usize,
     image_height: usize,
+
+    #[allow(dead_code)]
     focal_length: f64,
     field_of_view: f64,
 }

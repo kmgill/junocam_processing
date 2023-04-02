@@ -83,11 +83,12 @@ fn parse_date(date_str: &str) -> DateTime<chrono::Utc> {
 fn strip_units(s: &str) -> error::Result<String> {
     let idx = s.find('<');
     let r = s.replace(':', ".");
-    if idx == None {
-        Ok(r)
-    } else {
-        let t = &r[..((idx.unwrap() - 1) as usize)];
+
+    if let Some(i) = idx {
+        let t = &r[..(i - 1)];
         Ok(t.to_string())
+    } else {
+        Ok(r)
     }
 }
 
