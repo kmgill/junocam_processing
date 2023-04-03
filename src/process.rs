@@ -34,6 +34,7 @@ fn xy_to_map_point(
     lens: &Box<dyn Lens>,
     strip: &Strip,
     q: &Quaternion,
+    channel: usize,
 ) -> Point {
     let mut v = framelet.xy_to_vector(x as f64, y as f64);
     v = spc_mtx.multiply_vector(&v);
@@ -43,8 +44,8 @@ fn xy_to_map_point(
     v = Vector::new(v.x, v.z, v.y);
 
     let mut pt = lens.vector_to_point(&v);
-    let tl_v = strip.buffer.get(x, y).unwrap() as f64;
-    pt.v = tl_v;
+    let tl_v = strip.buffer.get(x, y).unwrap();
+    pt.color.values[channel] = tl_v as f64;
     pt
 }
 
@@ -244,7 +245,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
 
         for y in (2..(128 - line_sample_increment - 1)).step_by(line_sample_increment) {
             for x in (0..(1648 - line_sample_increment)).step_by(line_sample_increment) {
-                for s in 0..3 {
+                for s in 0..=2 {
                     let strip = &triplet.channels[s];
 
                     let framelet = match s {
@@ -254,7 +255,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
                         4 => &jc::JUNO_JUNOCAM_METHANE,
                         _ => panic!("Invalid filter band"),
                     };
-                    let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q);
+                    let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q, 2 - s);
                     let bl = xy_to_map_point(
                         x,
                         y + line_sample_increment,
@@ -263,6 +264,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
                         &lens,
                         strip,
                         &q,
+                        2 - s,
                     );
                     let br = xy_to_map_point(
                         x + line_sample_increment,
@@ -272,6 +274,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
                         &lens,
                         strip,
                         &q,
+                        2 - s,
                     );
                     let tr = xy_to_map_point(
                         x + line_sample_increment,
@@ -281,9 +284,11 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
                         &lens,
                         strip,
                         &q,
+                        2 - s,
                     );
 
-                    cyl_map.paint_square(&tl, &bl, &br, &tr, true, 2 - s);
+                    cyl_map
+                        .paint_square_with_channel_rule(&tl, &bl, &br, &tr, true, |c| c == 2 - s);
                 }
             }
         }

@@ -63,12 +63,7 @@ impl VectorToCylindrical for Vector {
         while out_x_f >= image_width as f64 {
             out_x_f -= image_width as f64;
         }
-
-        Point {
-            x: out_x_f,
-            y: out_y_f,
-            v: 0.0,
-        }
+        Point::create_rgb(out_x_f, out_y_f, 0.0, 0.0, 0.0)
     }
 }
 

@@ -49,10 +49,12 @@ impl Lens for FisheyeEquisolidLens {
             0
         };
 
-        Point {
-            x: u * (field_width as f64) + x_adjust as f64,
-            y: (1.0 - v) * (field_width as f64) + y_adjust as f64,
-            v: 0.0,
-        }
+        Point::create_rgb(
+            u as f64 * (field_width as f64) + x_adjust as f64,
+            (1.0 - v as f64) * (field_width as f64) + y_adjust as f64,
+            0.0,
+            0.0,
+            0.0,
+        )
     }
 }
