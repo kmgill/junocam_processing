@@ -1,5 +1,5 @@
-use junocam::{constants, enums, metadata, path, rawimage};
-
+use junocam::{constants, enums, metadata, rawimage};
+use sciimg::path;
 mod common;
 
 #[test]

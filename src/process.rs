@@ -44,7 +44,7 @@ fn xy_to_map_point(
     v = Vector::new(v.x, v.z, v.y);
 
     let mut pt = lens.vector_to_point(&v);
-    let tl_v = strip.buffer.get(x, y).unwrap();
+    let tl_v = strip.buffer.get(x, y);
     pt.color.values[channel] = tl_v as f64;
     pt
 }

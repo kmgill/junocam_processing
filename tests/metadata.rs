@@ -1,6 +1,7 @@
 use chrono::prelude::*;
 use json;
-use junocam::{constants, enums, metadata, path};
+use junocam::{constants, enums, metadata};
+use sciimg::path;
 use std::fs;
 
 mod common;
