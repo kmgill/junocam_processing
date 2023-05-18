@@ -44,7 +44,7 @@ curl -O ftp://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/spk/juno_struct_v04.bsp
 popd
 
 mkdir_if_not_exist ck 
-mv download/naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck/juno_sc_rec* ck/
+cp download/naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck/juno_sc_rec* ck/
 #mv download/naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck/juno_sc_raw* ck/
 
 mkdir_if_not_exist pck
