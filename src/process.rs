@@ -308,6 +308,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
     vprintln!("Data range, post-normalization:");
     vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());
 
+    cyl_map.set_using_alpha(false);
     match &context.output {
         Some(output) => {
             vprintln!("Writing output image to {}", output);
