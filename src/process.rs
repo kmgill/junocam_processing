@@ -4,6 +4,7 @@ use crate::{
     metadata, rawimage, strip::Strip, vprintln,
 };
 
+use itertools::iproduct;
 use sciimg::drawable::{Drawable, Point};
 use sciimg::{matrix::Matrix, prelude::*, quaternion::Quaternion, vector::Vector};
 
@@ -235,7 +236,7 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
     //let lens = FisheyeEquisolidLens::new(cyl_map.width, cyl_map.height, 13.0, fov);
 
     vprintln!("Processing triplets...");
-    for t in 0..raw_image.get_triplet_count() {
+    (0..raw_image.get_triplet_count()).for_each(|t| {
         vprintln!("Processing triplet #{}", (t + 1));
         let triplet = &raw_image.triplets[t as usize];
 
@@ -243,56 +244,56 @@ pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
             start_time_et + (t as f64 * (interframe_delay + interframe_delay_correction));
         let spc_mtx = jcspice::pos_transform_matrix("JUNO_JUNOCAM", "J2000", image_time_et);
 
-        for y in (2..(128 - line_sample_increment - 1)).step_by(line_sample_increment) {
-            for x in (0..(1648 - line_sample_increment)).step_by(line_sample_increment) {
-                for s in 0..=2 {
-                    let strip = &triplet.channels[s];
+        iproduct!(
+            (2..(128 - line_sample_increment - 1)).step_by(line_sample_increment),
+            (22..(1648 - line_sample_increment)).step_by(line_sample_increment),
+            0..=2
+        )
+        .for_each(|(y, x, s)| {
+            let strip = &triplet.channels[s];
 
-                    let framelet = match s {
-                        0 => &jc::JUNO_JUNOCAM_BLUE,
-                        1 => &jc::JUNO_JUNOCAM_GREEN,
-                        2 => &jc::JUNO_JUNOCAM_RED,
-                        4 => &jc::JUNO_JUNOCAM_METHANE,
-                        _ => panic!("Invalid filter band"),
-                    };
-                    let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q, 2 - s);
-                    let bl = xy_to_map_point(
-                        x,
-                        y + line_sample_increment,
-                        framelet,
-                        &spc_mtx,
-                        &lens,
-                        strip,
-                        &q,
-                        2 - s,
-                    );
-                    let br = xy_to_map_point(
-                        x + line_sample_increment,
-                        y + line_sample_increment,
-                        framelet,
-                        &spc_mtx,
-                        &lens,
-                        strip,
-                        &q,
-                        2 - s,
-                    );
-                    let tr = xy_to_map_point(
-                        x + line_sample_increment,
-                        y,
-                        framelet,
-                        &spc_mtx,
-                        &lens,
-                        strip,
-                        &q,
-                        2 - s,
-                    );
+            let framelet = match s {
+                0 => &jc::JUNO_JUNOCAM_BLUE,
+                1 => &jc::JUNO_JUNOCAM_GREEN,
+                2 => &jc::JUNO_JUNOCAM_RED,
+                4 => &jc::JUNO_JUNOCAM_METHANE,
+                _ => panic!("Invalid filter band"),
+            };
+            let tl = xy_to_map_point(x, y, framelet, &spc_mtx, &lens, strip, &q, 2 - s);
+            let bl = xy_to_map_point(
+                x,
+                y + line_sample_increment,
+                framelet,
+                &spc_mtx,
+                &lens,
+                strip,
+                &q,
+                2 - s,
+            );
+            let br = xy_to_map_point(
+                x + line_sample_increment,
+                y + line_sample_increment,
+                framelet,
+                &spc_mtx,
+                &lens,
+                strip,
+                &q,
+                2 - s,
+            );
+            let tr = xy_to_map_point(
+                x + line_sample_increment,
+                y,
+                framelet,
+                &spc_mtx,
+                &lens,
+                strip,
+                &q,
+                2 - s,
+            );
 
-                    cyl_map
-                        .paint_square_with_channel_rule(&tl, &bl, &br, &tr, true, |c| c == 2 - s);
-                }
-            }
-        }
-    }
+            cyl_map.paint_square_with_channel_rule(&tl, &bl, &br, &tr, true, |c| c == 2 - s);
+        });
+    });
 
     vprintln!("Data range, pre-normalization:");
     vprintln!("MinMax: {:?}", cyl_map.get_min_max_all_channel());
