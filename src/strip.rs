@@ -1,9 +1,11 @@
 use crate::{calibration, constants, decompanding as ilttables, enums};
 
 use sciimg::{
-    decompanding, enums::ImageMode, error, hotpixel, image::Image, imagebuffer::ImageBuffer,
-    inpaint,
+    decompanding, enums::ImageMode, hotpixel, image::Image, imagebuffer::ImageBuffer, inpaint,
 };
+
+use anyhow::anyhow;
+use anyhow::Result;
 
 pub struct Strip {
     pub buffer: ImageBuffer,
@@ -15,10 +17,7 @@ pub struct Strip {
 }
 
 impl Strip {
-    pub fn new_from_imagebuffer(
-        buffer: &ImageBuffer,
-        camera: enums::Camera,
-    ) -> error::Result<Strip> {
+    pub fn new_from_imagebuffer(buffer: &ImageBuffer, camera: enums::Camera) -> Result<Strip> {
         Ok(Strip {
             buffer: buffer.clone(),
             camera,
@@ -29,19 +28,19 @@ impl Strip {
         })
     }
 
-    pub fn apply_darknoise(&mut self) -> error::Result<&'static str> {
+    pub fn apply_darknoise(&mut self) -> Result<&'static str> {
         if self.darknoise_applied {
-            return Err("Dark/Noise calibration already applied");
+            return Err(anyhow!("Dark/Noise calibration already applied"));
         }
 
         let mut dark = match calibration::load_dark_file(self.camera) {
             Ok(m) => m,
-            Err(_) => return Err("Error loading dark field"),
+            Err(_) => return Err(anyhow!("Error loading dark field")),
         };
 
         let mut flat = match calibration::load_flat_file(self.camera) {
             Ok(m) => m,
-            Err(_) => return Err("Error loading flat field"),
+            Err(_) => return Err(anyhow!("Error loading flat field")),
         };
 
         dark = dark.divide_into(65535.0).unwrap();
@@ -65,14 +64,14 @@ impl Strip {
         into.paste_mut(&self.buffer, 0, y);
     }
 
-    pub fn infill(&mut self) -> error::Result<&'static str> {
+    pub fn infill(&mut self) -> Result<&'static str> {
         if self.infill_applied {
-            return Err("Infill correction already applied");
+            return Err(anyhow!("Infill correction already applied"));
         }
 
         let mask = match calibration::load_mask(self.camera) {
             Ok(m) => m,
-            Err(_) => return Err("Error loading mask"),
+            Err(_) => return Err(anyhow!("Error loading mask")),
         };
 
         // Loading our grayscale data into a 3 band RgbImage. Will need to modify the sciimg inpaint method to take in imagebuffer
@@ -96,9 +95,9 @@ impl Strip {
         Ok("ok")
     }
 
-    pub fn decompand(&mut self, ilttype: enums::SampleBitMode) -> error::Result<&'static str> {
+    pub fn decompand(&mut self, ilttype: enums::SampleBitMode) -> Result<&'static str> {
         if self.ilt_applied {
-            return Err("ILT decompression already applied");
+            return Err(anyhow!("ILT decompression already applied"));
         }
 
         self.buffer.clip_mut(0.0, 255.0);
@@ -109,7 +108,7 @@ impl Strip {
             enums::SampleBitMode::LIN8 => ilttables::LIN8,
             enums::SampleBitMode::LIN16 => ilttables::LIN16,
             enums::SampleBitMode::UNKNOWN => {
-                return Err("Unknown/unsupported ILT, cannot decompand");
+                return Err(anyhow!("Unknown/unsupported ILT, cannot decompand"));
             }
         };
 
@@ -124,9 +123,9 @@ impl Strip {
         &mut self,
         window_size: i32,
         threshold: f32,
-    ) -> error::Result<&'static str> {
+    ) -> Result<&'static str> {
         if self.hpc_applied {
-            return Err("Hot pixel correction already applied");
+            return Err(anyhow!("Hot pixel correction already applied"));
         }
 
         match hotpixel::hot_pixel_detection(&self.buffer, window_size, threshold) {
@@ -139,7 +138,7 @@ impl Strip {
         }
     }
 
-    pub fn apply_weight(&mut self, weight: f32) -> error::Result<&'static str> {
+    pub fn apply_weight(&mut self, weight: f32) -> Result<&'static str> {
         self.buffer = self.buffer.scale(weight).unwrap();
 
         Ok(constants::status::OK)

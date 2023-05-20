@@ -3,15 +3,17 @@ use crate::{constants, decompanding as ilttables, enums, triplet};
 use sciimg::prelude::*;
 use sciimg::*;
 
+use anyhow::anyhow;
+use anyhow::Result;
 extern crate image;
 use image::open;
 
 trait FromFile8Bit {
-    fn from_file_8bit(file_path: &str) -> error::Result<ImageBuffer>;
+    fn from_file_8bit(file_path: &str) -> Result<ImageBuffer>;
 }
 
 impl FromFile8Bit for ImageBuffer {
-    fn from_file_8bit(file_path: &str) -> error::Result<ImageBuffer> {
+    fn from_file_8bit(file_path: &str) -> Result<ImageBuffer> {
         if !path::file_exists(file_path) {
             panic!("File not found: {}", file_path);
         }
@@ -43,9 +45,9 @@ pub struct RawImage {
 }
 
 impl RawImage {
-    pub fn new_from_image(raw_image_path: &str) -> error::Result<RawImage> {
+    pub fn new_from_image(raw_image_path: &str) -> Result<RawImage> {
         if !path::file_exists(raw_image_path) {
-            return Err(constants::status::FILE_NOT_FOUND);
+            return Err(anyhow!(constants::status::FILE_NOT_FOUND));
         }
 
         let mut rawimage = RawImage {
@@ -67,9 +69,9 @@ impl RawImage {
     pub fn new_from_image_with_decompand(
         raw_image_path: &str,
         ilttype: enums::SampleBitMode,
-    ) -> error::Result<RawImage> {
+    ) -> Result<RawImage> {
         if !path::file_exists(raw_image_path) {
-            return Err(constants::status::FILE_NOT_FOUND);
+            return Err(anyhow!(constants::status::FILE_NOT_FOUND));
         }
 
         let mut rawimage = RawImage {
@@ -88,7 +90,7 @@ impl RawImage {
             enums::SampleBitMode::LIN8 => ilttables::LIN8,
             enums::SampleBitMode::LIN16 => ilttables::LIN16,
             enums::SampleBitMode::UNKNOWN => {
-                return Err("Unknown/unsupported ILT, cannot decompand");
+                return Err(anyhow!("Unknown/unsupported ILT, cannot decompand"));
             }
         };
         decompanding::decompand_buffer(&mut rawimage.rawdata, &ilttable);
@@ -138,7 +140,7 @@ impl RawImage {
         self.triplets.len() as u8
     }
 
-    pub fn apply_darknoise(&mut self) -> error::Result<&'static str> {
+    pub fn apply_darknoise(&mut self) -> Result<&'static str> {
         for triplet in self.triplets.iter_mut() {
             triplet
                 .apply_darknoise()
@@ -152,7 +154,7 @@ impl RawImage {
         &mut self,
         hpc_window_size: i32,
         hpc_threshold: f32,
-    ) -> error::Result<&'static str> {
+    ) -> Result<&'static str> {
         for triplet in self.triplets.iter_mut() {
             triplet
                 .apply_hot_pixel_correction(hpc_window_size, hpc_threshold)
@@ -162,7 +164,7 @@ impl RawImage {
         Ok("ok")
     }
 
-    pub fn apply_infill_correction(&mut self) -> error::Result<&'static str> {
+    pub fn apply_infill_correction(&mut self) -> Result<&'static str> {
         for triplet in self.triplets.iter_mut() {
             triplet.infill().expect("Error applying infill correction");
         }
@@ -170,10 +172,7 @@ impl RawImage {
         Ok("ok")
     }
 
-    pub fn appy_decomanding(
-        &mut self,
-        ilttype: enums::SampleBitMode,
-    ) -> error::Result<&'static str> {
+    pub fn appy_decomanding(&mut self, ilttype: enums::SampleBitMode) -> Result<&'static str> {
         for triplet in self.triplets.iter_mut() {
             triplet
                 .decompand(ilttype)
@@ -188,7 +187,7 @@ impl RawImage {
         red_weight: f32,
         green_weight: f32,
         blue_weight: f32,
-    ) -> error::Result<&'static str> {
+    ) -> Result<&'static str> {
         for triplet in self.triplets.iter_mut() {
             triplet
                 .apply_weights(red_weight, green_weight, blue_weight)

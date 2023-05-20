@@ -1,9 +1,10 @@
 use crate::constants;
-use sciimg::error;
+use anyhow::anyhow;
+use anyhow::Result;
 use sciimg::path;
 use std::env;
 
-pub fn locate_calibration_file(file_path: &String) -> error::Result<String> {
+pub fn locate_calibration_file(file_path: &String) -> Result<String> {
     // If the file exists as-is, return it
     if path::file_exists(file_path) {
         return Ok(file_path.clone());
@@ -68,5 +69,5 @@ pub fn locate_calibration_file(file_path: &String) -> error::Result<String> {
     }
 
     // Oh nos!
-    Err(constants::status::FILE_NOT_FOUND)
+    Err(anyhow!(constants::status::FILE_NOT_FOUND))
 }

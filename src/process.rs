@@ -8,6 +8,8 @@ use itertools::iproduct;
 use sciimg::drawable::{Drawable, Point};
 use sciimg::{matrix::Matrix, prelude::*, quaternion::Quaternion, vector::Vector};
 
+use anyhow::Result;
+
 #[derive(Debug, Copy, Clone, PartialEq, Eq, Hash)]
 pub enum SupportedLens {
     Cylindrical,
@@ -69,7 +71,7 @@ pub struct ProcessOptions {
     pub decorrelated_color_stretch: bool,
 }
 
-pub fn process_image(context: &ProcessOptions) -> error::Result<Image> {
+pub fn process_image(context: &ProcessOptions) -> Result<Image> {
     let juno_config = match config::load_configuration() {
         Ok(jc) => jc,
         Err(why) => return Err(why),

@@ -4,7 +4,7 @@ use crate::vprintln;
 use std::fs::File;
 use std::io::Read;
 
-use sciimg::error;
+use anyhow::Result;
 
 //use serde_derive::Deserialize;
 use serde::Deserialize;
@@ -58,7 +58,7 @@ pub struct JunoConfig {
 
 static mut JUNO_CONFIG: Option<JunoConfig> = None;
 
-pub fn load_configuration() -> error::Result<JunoConfig> {
+pub fn load_configuration() -> Result<JunoConfig> {
     unsafe {
         if let Some(c) = &JUNO_CONFIG {
             return Ok(c.clone());

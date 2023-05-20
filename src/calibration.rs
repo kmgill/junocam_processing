@@ -3,13 +3,15 @@ use crate::{cache, config, constants, enums, filelocate};
 use sciimg::{inpaint, prelude::*};
 use std::sync::Mutex;
 
+use anyhow::{anyhow, Result};
+
 lazy_static! {
     static ref DARK_CACHE: Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
     static ref FLAT_CACHE: Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
     static ref MASK_CACHE: Mutex<cache::ImageCache> = Mutex::new(cache::ImageCache::default());
 }
 
-pub fn load_mask(camera: enums::Camera) -> error::Result<ImageBuffer> {
+pub fn load_mask(camera: enums::Camera) -> Result<ImageBuffer> {
     let c = config::load_configuration().expect("Failed to load configuration");
     match camera {
         enums::Camera::RED => Ok(MASK_CACHE
@@ -29,11 +31,11 @@ pub fn load_mask(camera: enums::Camera) -> error::Result<ImageBuffer> {
             .unwrap()
             .check_blue(&filelocate::locate_calibration_file(&c.calibration.inpaint_blue).unwrap())
             .unwrap()),
-        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL),
+        _ => Err(anyhow!(constants::status::UNSUPPORTED_COLOR_CHANNEL)),
     }
 }
 
-pub fn load_flat_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
+pub fn load_flat_file(camera: enums::Camera) -> Result<ImageBuffer> {
     let c = config::load_configuration().expect("Failed to load configuration");
 
     let flat = match camera {
@@ -52,13 +54,13 @@ pub fn load_flat_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
             .unwrap()
             .check_blue(&filelocate::locate_calibration_file(&c.calibration.flat_blue).unwrap())
             .unwrap()),
-        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL),
+        _ => Err(anyhow!(constants::status::UNSUPPORTED_COLOR_CHANNEL)),
     }
     .unwrap();
 
     let mask = match load_mask(camera) {
         Ok(m) => m,
-        Err(_) => return Err("Error loading mask"),
+        Err(_) => return Err(anyhow!("Error loading mask")),
     };
 
     // Loading our grayscale data into a 3 band RgbImage. Will need to modify the sciimg inpaint method to take in imagebuffer
@@ -72,7 +74,7 @@ pub fn load_flat_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
     Ok(filled.get_band(0).clone())
 }
 
-pub fn load_dark_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
+pub fn load_dark_file(camera: enums::Camera) -> Result<ImageBuffer> {
     let c = config::load_configuration().expect("Failed to load configuration");
 
     let dark = match camera {
@@ -91,13 +93,13 @@ pub fn load_dark_file(camera: enums::Camera) -> error::Result<ImageBuffer> {
             .unwrap()
             .check_blue(&filelocate::locate_calibration_file(&c.calibration.dark_blue).unwrap())
             .unwrap()),
-        _ => Err(constants::status::UNSUPPORTED_COLOR_CHANNEL),
+        _ => Err(anyhow!(constants::status::UNSUPPORTED_COLOR_CHANNEL)),
     }
     .unwrap();
 
     let mask = match load_mask(camera) {
         Ok(m) => m,
-        Err(_) => return Err("Error loading mask"),
+        Err(_) => return Err(anyhow!("Error loading mask")),
     };
 
     // Loading our grayscale data into a 3 band RgbImage. Will need to modify the sciimg inpaint method to take in imagebuffer

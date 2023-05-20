@@ -1,6 +1,8 @@
 use crate::{constants, enums, strip::Strip};
 
-use sciimg::{error, imagebuffer::ImageBuffer};
+use anyhow::anyhow;
+use anyhow::Result;
+use sciimg::imagebuffer::ImageBuffer;
 
 pub struct Triplet {
     pub buffer: ImageBuffer,
@@ -12,7 +14,7 @@ const GREEN_CHANNEL: usize = 1;
 const BLUE_CHANNEL: usize = 0;
 
 impl Triplet {
-    pub fn new_from_imagebuffer(buffer: &ImageBuffer) -> error::Result<Triplet> {
+    pub fn new_from_imagebuffer(buffer: &ImageBuffer) -> Result<Triplet> {
         let mut new_triplet = Triplet {
             buffer: buffer.clone(),
             channels: Vec::with_capacity(3),
@@ -44,9 +46,9 @@ impl Triplet {
         Ok(new_triplet)
     }
 
-    pub fn paste_into(&self, into: &mut ImageBuffer, y: usize) -> error::Result<&'static str> {
+    pub fn paste_into(&self, into: &mut ImageBuffer, y: usize) -> Result<&'static str> {
         if self.channels.len() != 3 {
-            return Err("Empty data, cannot paste");
+            return Err(anyhow!("Empty data, cannot paste"));
         }
         self.channels[BLUE_CHANNEL].paste_into(into, y);
         self.channels[GREEN_CHANNEL].paste_into(into, y + constants::STRIP_HEIGHT);
@@ -56,7 +58,7 @@ impl Triplet {
         Ok("ok")
     }
 
-    pub fn apply_darknoise(&mut self) -> error::Result<&'static str> {
+    pub fn apply_darknoise(&mut self) -> Result<&'static str> {
         for i in self.channels.iter_mut() {
             match i.apply_darknoise() {
                 Ok(_) => {}
@@ -69,7 +71,7 @@ impl Triplet {
         Ok(constants::status::OK)
     }
 
-    pub fn infill(&mut self) -> error::Result<&'static str> {
+    pub fn infill(&mut self) -> Result<&'static str> {
         for i in self.channels.iter_mut() {
             match i.infill() {
                 Ok(_) => {}
@@ -86,7 +88,7 @@ impl Triplet {
         &mut self,
         window_size: i32,
         threshold: f32,
-    ) -> error::Result<&'static str> {
+    ) -> Result<&'static str> {
         for i in self.channels.iter_mut() {
             match i.apply_hot_pixel_correction(window_size, threshold) {
                 Ok(_) => {}
@@ -99,7 +101,7 @@ impl Triplet {
         Ok(constants::status::OK)
     }
 
-    pub fn decompand(&mut self, ilttype: enums::SampleBitMode) -> error::Result<&'static str> {
+    pub fn decompand(&mut self, ilttype: enums::SampleBitMode) -> Result<&'static str> {
         for i in self.channels.iter_mut() {
             match i.decompand(ilttype) {
                 Ok(_) => {}
@@ -117,7 +119,7 @@ impl Triplet {
         red_weight: f32,
         green_weight: f32,
         blue_weight: f32,
-    ) -> error::Result<&'static str> {
+    ) -> Result<&'static str> {
         match self.channels[RED_CHANNEL].apply_weight(red_weight) {
             Ok(_) => {}
             Err(e) => {

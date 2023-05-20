@@ -1,8 +1,10 @@
 use spice;
 
 use crate::{config, filelocate, veprintln, vprintln};
-use sciimg::error;
 use sciimg::matrix::Matrix;
+
+use anyhow::anyhow;
+use anyhow::Result;
 
 use chrono::{TimeZone, Utc};
 use glob::glob;
@@ -34,7 +36,7 @@ impl Channel {
     }
 }
 
-pub fn furnish(kernel_path: &str) -> error::Result<&str> {
+pub fn furnish(kernel_path: &str) -> Result<&str> {
     match filelocate::locate_calibration_file(&kernel_path.to_string()) {
         Ok(f) => {
             vprintln!("Loading {}", f);
@@ -62,7 +64,7 @@ pub fn furnish_base() {
     }
 }
 
-fn kernel_name_date_to_et(name_date: &String) -> error::Result<f64> {
+fn kernel_name_date_to_et(name_date: &String) -> Result<f64> {
     match Utc.datetime_from_str(&format!("{} 00:00:00", name_date), "%y%m%d %T") {
         Ok(dt) => {
             let dt_reformatted = dt.format("%Y-%h-%d %H:%M:%S%.3f").to_string();
@@ -70,7 +72,7 @@ fn kernel_name_date_to_et(name_date: &String) -> error::Result<f64> {
         }
         Err(why) => {
             veprintln!("Error: {:?}  -- '{}'", why, &name_date.as_str());
-            Err("Failed to parse kernel datetime")
+            Err(anyhow!("Failed to parse kernel datetime"))
         }
     }
 }
@@ -97,7 +99,7 @@ fn get_kernel_range_et(ck_file: &String) -> Option<(f64, f64)> {
     Some((kernel_start_et, kernel_end_et))
 }
 
-pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> error::Result<String> {
+pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> Result<String> {
     match option_env!("JUNOBASE") {
         Some(v) => {
             let abs_search_pattern = format!("{}/{}", v, search_pattern);
@@ -118,9 +120,9 @@ pub fn find_kernel_with_date(search_pattern: &String, time_et: f64) -> error::Re
                 }
             }
 
-            Err("Matching kernel not found")
+            Err(anyhow!("Matching kernel not found"))
         }
-        None => Err("JUNOBASE not specified"),
+        None => Err(anyhow!("JUNOBASE not specified")),
     }
 }
 

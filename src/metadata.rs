@@ -1,8 +1,10 @@
 use crate::{constants, enums};
 use json;
 
-use sciimg::error;
 use sciimg::path;
+
+use anyhow::anyhow;
+use anyhow::Result;
 
 use chrono::prelude::*;
 use std::fs;
@@ -81,7 +83,7 @@ fn parse_date(date_str: &str) -> DateTime<chrono::Utc> {
     Utc.datetime_from_str(date_str, DATE_FORMAT_STRING).unwrap()
 }
 
-fn strip_units(s: &str) -> error::Result<String> {
+fn strip_units(s: &str) -> Result<String> {
     let idx = s.find('<');
     let r = s.replace(':', ".");
 
@@ -128,9 +130,9 @@ macro_rules! _U8 {
 }
 
 impl Metadata {
-    pub fn new_from_file(file_path: &str) -> error::Result<Metadata> {
+    pub fn new_from_file(file_path: &str) -> Result<Metadata> {
         if !path::file_exists(file_path) {
-            return Err(constants::status::FILE_NOT_FOUND);
+            return Err(anyhow!(constants::status::FILE_NOT_FOUND));
         }
 
         let json_string_data =

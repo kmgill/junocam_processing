@@ -1,6 +1,7 @@
 use crate::{constants, metadata, rawimage};
 
-use sciimg::error;
+use anyhow::anyhow;
+use anyhow::Result;
 use sciimg::path;
 
 pub struct RawSet {
@@ -12,13 +13,13 @@ pub struct RawSet {
  *
  */
 impl RawSet {
-    pub fn open(metadata_path: &str, image_path: &str) -> error::Result<RawSet> {
+    pub fn open(metadata_path: &str, image_path: &str) -> Result<RawSet> {
         if !path::file_exists(metadata_path) {
-            return Err(constants::status::FILE_NOT_FOUND);
+            return Err(anyhow!(constants::status::FILE_NOT_FOUND));
         }
 
         if !path::file_exists(image_path) {
-            return Err(constants::status::FILE_NOT_FOUND);
+            return Err(anyhow!(constants::status::FILE_NOT_FOUND));
         }
 
         Ok(RawSet {
