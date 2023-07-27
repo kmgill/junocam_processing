@@ -34,7 +34,7 @@ cd kernels
 mkdir_if_not_exist download
 
 pushd download
-wget --mirror --no-parent -N ftp://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck
+wget --mirror --no-parent -N -X /pub/naif/JUNO/misc/ https://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck
 curl -O ftp://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/pck/pck00010.tpc
 curl -O ftp://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/fk/juno_v12.tf
 curl -O ftp://naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ik/juno_junocam_v03.ti
@@ -48,19 +48,19 @@ cp download/naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck/juno_sc_rec* ck/
 #mv download/naif.jpl.nasa.gov/pub/naif/JUNO/kernels/ck/juno_sc_raw* ck/
 
 mkdir_if_not_exist pck
-mv download/pck00010.tpc pck/
+cp download/pck00010.tpc pck/
 
 mkdir_if_not_exist fk
-mv download/juno_v12.tf fk/
+cp download/juno_v12.tf fk/
 
 mkdir_if_not_exist ik
-mv download/juno_junocam_v03.ti ik/
+cp download/juno_junocam_v03.ti ik/
 
 mkdir_if_not_exist lsk
-mv download/naif0012.tls lsk/
+cp download/naif0012.tls lsk/
 
 mkdir_if_not_exist sclk 
-mv download/JNO_SCLKSCET.00138.tsc sclk/jno_sclkscet_00074.tsc
+cp download/JNO_SCLKSCET.00138.tsc sclk/jno_sclkscet_00074.tsc
 
 mkdir_if_not_exist spk
-mv download/juno_struct_v04.bsp spk/
+cp download/juno_struct_v04.bsp spk/

@@ -24,7 +24,8 @@ chrono = "0.4.19"
 const_format = "0.2.14"
 lazy_static = "1.4.0"
 #sciimg = "0.4.0"
-sciimg = { path = "sciimg" }
+sciimg = {git = "https://github.com/MarsRaw/sciimg.git", branch = "kmgill_develop", features = ["rayon"]}
+stump = {git = "https://github.com/MarsRaw/stump.git"}
 wild = "2.0.4"
 serde = { version = "1.0.125", features = ["derive"] }
 colored = "2.0.0"
@@ -35,3 +36,5 @@ glob = "0.3.0"
 rayon = "1.5.1"
 itertools = "0.10.5"
 anyhow = "1.0.65"
+async-trait = "0.1.57"
+tokio = {version="1.21.2", features= ["full"]}

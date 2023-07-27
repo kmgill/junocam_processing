@@ -1,5 +1,5 @@
 use crate::subs::runnable::RunnableSubcommand;
-
+use anyhow::Result;
 use junocam::vprintln;
 use rayon::prelude::*;
 use sciimg::prelude::*;
@@ -23,8 +23,9 @@ pub struct CenterOfMass {
     threshold: Option<f32>,
 }
 
+#[async_trait::async_trait]
 impl RunnableSubcommand for CenterOfMass {
-    fn run(&self) {
+    async fn run(&self) -> Result<()> {
         let threshold = self.threshold.unwrap_or(100.0);
 
         self.inputs.par_iter().for_each(|file_path| {
@@ -40,7 +41,9 @@ impl RunnableSubcommand for CenterOfMass {
             img.shift(offset.h, offset.v);
 
             let output_filename = util::replace_image_extension(file_path, "-com.png");
-            img.save(&output_filename);
+            img.save(&output_filename).expect("Failed to save image");
         });
+
+        Ok(())
     }
 }

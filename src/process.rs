@@ -315,7 +315,7 @@ pub fn process_image(context: &ProcessOptions) -> Result<Image> {
     match &context.output {
         Some(output) => {
             vprintln!("Writing output image to {}", output);
-            cyl_map.save(output);
+            cyl_map.save(output)?;
         }
         None => {}
     };

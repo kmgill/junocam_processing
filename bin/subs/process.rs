@@ -1,11 +1,10 @@
 use crate::subs::runnable::RunnableSubcommand;
-
 use junocam::{
     config,
     process::{process_image, ProcessOptions, SupportedLens},
     vprintln,
 };
-// use rayon::prelude::*;
+use anyhow::Result;
 use sciimg::path;
 use sciimg::util;
 use std::process;
@@ -76,8 +75,9 @@ pub struct Process {
     decorrelated_color_stretch: bool,
 }
 
+#[async_trait::async_trait]
 impl RunnableSubcommand for Process {
-    fn run(&self) {
+    async fn run(&self) -> Result<()> {
         let juno_config = config::load_configuration().expect("Failed to load config file");
 
         let red_weight = self.red_weight.unwrap_or(juno_config.defaults.red_weight);
@@ -174,5 +174,7 @@ impl RunnableSubcommand for Process {
                     }
                 }
             });
+
+        Ok(())
     }
 }
